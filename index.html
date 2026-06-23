@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medley — Budget vs Realizado | Logística</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+:root {
+  --green-deep:  #006B5B;
+  --green-mid:   #009B8D;
+  --green-light: #00C4B3;
+  --green-pale:  #E6F7F5;
+  --gold:        #F0A500;
+  --gold-light:  #FFF8E6;
+  --red:         #D63031;
+  --red-light:   #FDECEA;
+  --yellow:      #F39C12;
+  --yellow-light:#FEF9E7;
+  --text:        #1A2E2B;
+  --text-mid:    #4A6461;
+  --text-light:  #8AADAA;
+  --border:      #C8E6E3;
+  --bg:          #F2FAF9;
+  --white:       #FFFFFF;
+  --shadow-sm:   0 1px 4px rgba(0,107,91,.08);
+  --shadow:      0 4px 16px rgba(0,107,91,.11);
+  --radius:      12px;
+  --radius-sm:   8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+.layout{display:flex;min-height:100vh;}
+/* SIDEBAR */
+.sidebar{width:220px;flex-shrink:0;background:var(--green-deep);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;box-shadow:4px 0 24px rgba(0,0,0,.18);}
+.sidebar-logo{padding:28px 22px 24px;border-bottom:1px solid rgba(255,255,255,.12);}
+.logo-text{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:28px;font-weight:700;color:white;letter-spacing:-.5px;}
+.logo-text .dot{color:var(--green-light);}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1.2px;margin-top:2px;}
+.sidebar-section{padding:18px 12px 6px;font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1.2px;font-weight:600;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:2px 8px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:500;color:rgba(255,255,255,.65);transition:all .15s;}
+.nav-item:hover{background:rgba(255,255,255,.08);color:white;}
+.nav-item.active{background:rgba(0,196,179,.18);color:white;}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-bottom{margin-top:auto;padding:16px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;color:rgba(255,255,255,.35);text-align:center;}
+/* CONTENT */
+.content{margin-left:220px;flex:1;display:flex;flex-direction:column;}
+/* TOPBAR */
+.topbar{background:white;border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
+.topbar-title{font-size:17px;font-weight:700;color:var(--text);}
+.topbar-breadcrumb{font-size:12px;color:var(--text-light);margin-top:1px;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;font-family:inherit;}
+.btn-ghost{background:transparent;color:var(--text-mid);border:1.5px solid var(--border);}
+.btn-ghost:hover{border-color:var(--green-mid);color:var(--green-mid);}
+.btn-primary{background:var(--green-mid);color:white;}
+.btn-primary:hover{background:var(--green-deep);}
+.btn-gold{background:var(--gold);color:white;}
+.btn-gold:hover{background:#D9940A;}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--green-pale);border:2px solid var(--green-mid);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--green-deep);}
+/* MAIN */
+.main{padding:28px 32px;}
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(0,107,91,.85);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.loading-logo{font-family:Georgia,serif;font-style:italic;font-size:42px;font-weight:700;color:white;}
+.loading-logo .dot{color:var(--green-light);}
+.loading-text{color:rgba(255,255,255,.8);font-size:15px;}
+.spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.2);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+/* ALERT */
+.alert{display:flex;align-items:flex-start;gap:14px;background:var(--red-light);border:1.5px solid #F1948A;border-left:4px solid var(--red);border-radius:var(--radius);padding:14px 18px;margin-bottom:24px;}
+.alert-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.alert-body{flex:1;}
+.alert-title{font-size:13px;font-weight:700;color:#922B21;}
+.alert-desc{font-size:12px;color:#A93226;margin-top:3px;}
+.alert-close{color:#C0392B;cursor:pointer;font-size:18px;flex-shrink:0;opacity:.6;}
+.alert-close:hover{opacity:1;}
+.alert-success{background:#E6F7F5;border-color:var(--green-mid);border-left-color:var(--green-deep);}
+.alert-success .alert-title{color:var(--green-deep);}
+.alert-success .alert-desc{color:var(--text-mid);}
+/* FILTER */
+.filterbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:white;padding:14px 20px;border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-bottom:24px;border:1px solid var(--border);}
+.filter-group{display:flex;align-items:center;gap:8px;}
+.filter-label{font-size:11px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;}
+.filter-select{padding:6px 28px 6px 10px;border-radius:var(--radius-sm);border:1.5px solid var(--border);font-size:13px;color:var(--text);background:var(--bg);cursor:pointer;font-family:inherit;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23009B8D' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;}
+.filter-select:focus{outline:none;border-color:var(--green-mid);}
+.filter-sep{width:1px;height:24px;background:var(--border);margin:0 4px;}
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.kpi{background:white;border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow-sm);border:1px solid var(--border);position:relative;overflow:hidden;transition:box-shadow .2s;}
+.kpi:hover{box-shadow:var(--shadow);}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green-mid);}
+.kpi.gold::before{background:var(--gold);}
+.kpi.red::before{background:var(--red);}
+.kpi.teal::before{background:var(--green-light);}
+.kpi-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;background:var(--green-pale);}
+.kpi.gold .kpi-icon{background:var(--gold-light);}
+.kpi.red .kpi-icon{background:var(--red-light);}
+.kpi-label{font-size:11px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;}
+.kpi-value{font-size:22px;font-weight:800;color:var(--text);line-height:1.1;}
+.kpi.red .kpi-value{color:var(--red);}
+.kpi-sub{font-size:11px;color:var(--text-light);margin-top:6px;}
+.kpi-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-top:8px;}
+.tag-green{background:#E6F7F5;color:var(--green-deep);}
+.tag-gold{background:var(--gold-light);color:#9A6800;}
+.tag-red{background:var(--red-light);color:var(--red);}
+/* GRID */
+.grid-2{display:grid;grid-template-columns:3fr 2fr;gap:20px;margin-bottom:24px;}
+/* CARD */
+.card{background:white;border-radius:var(--radius);box-shadow:var(--shadow-sm);border:1px solid var(--border);overflow:hidden;}
+.card-header{padding:18px 22px 0;display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;}
+.card-title .accent{width:4px;height:16px;border-radius:2px;background:var(--green-mid);}
+.card-body{padding:18px 22px 22px;}
+.card-actions{display:flex;gap:6px;}
+/* CHART LEGEND */
+.chart-legend{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-mid);font-weight:500;}
+.legend-dot{width:10px;height:10px;border-radius:3px;}
+/* TABLE */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead tr{background:var(--green-deep);}
+thead th{color:rgba(255,255,255,.9);padding:11px 16px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;}
+tbody tr{border-bottom:1px solid #EEF7F6;transition:background .1s;}
+tbody tr:hover{background:var(--green-pale);}
+tbody tr.total-row{background:#E6F7F5;border-top:2px solid var(--green-mid);}
+tbody tr.total-row td{font-weight:700;color:var(--green-deep);}
+tbody td{padding:12px 16px;}
+.td-cat{font-weight:600;color:var(--text);}
+/* PILL */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+.pill-green{background:#E6F7F5;color:#006B5B;}
+.pill-yellow{background:var(--yellow-light);color:#9A6800;}
+.pill-red{background:var(--red-light);color:var(--red);}
+.pill-gray{background:#F0F0F0;color:#888;}
+/* BAR */
+.bar-wrap{display:flex;align-items:center;gap:8px;}
+.bar-bg{flex:1;height:6px;background:#E6F0EE;border-radius:20px;overflow:hidden;min-width:60px;}
+.bar-fill{height:6px;border-radius:20px;}
+.bar-pct{font-size:11px;font-weight:700;min-width:36px;text-align:right;}
+/* MONTH STRIP */
+.month-strip{display:flex;gap:6px;padding:0 22px 18px;flex-wrap:wrap;}
+.month-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:white;color:var(--text-mid);transition:all .15s;}
+.month-chip:hover{border-color:var(--green-mid);color:var(--green-mid);}
+.month-chip.active{background:var(--green-deep);color:white;border-color:var(--green-deep);}
+.month-chip.warn{border-color:var(--yellow);color:var(--yellow);}
+.month-chip.over{border-color:var(--red);color:var(--red);background:var(--red-light);}
+.month-chip.future{color:var(--text-light);border-style:dashed;}
+/* IMPORT */
+.import-drop{border:2px dashed var(--border);border-radius:var(--radius);padding:40px;text-align:center;background:var(--green-pale);cursor:pointer;transition:all .2s;margin:0 22px 22px;}
+.import-drop:hover{border-color:var(--green-mid);background:#D0EDE9;}
+.import-drop-icon{font-size:40px;margin-bottom:10px;}
+.import-drop-title{font-size:15px;font-weight:700;color:var(--green-deep);}
+.import-drop-sub{font-size:12px;color:var(--text-mid);margin-top:4px;}
+/* SUMMARY ROW */
+.summary-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 22px;background:var(--green-pale);border-top:1px solid var(--border);}
+.summary-item{text-align:center;}
+.summary-value{font-size:16px;font-weight:800;color:var(--green-deep);}
+.summary-label{font-size:10px;color:var(--text-light);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);padding:0 22px;}
+.tab{padding:12px 16px;font-size:13px;font-weight:600;color:var(--text-light);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.tab.active{color:var(--green-deep);border-bottom-color:var(--green-mid);}
+/* SALDO */
+.saldo-pos{color:var(--green-deep);font-weight:700;}
+.saldo-neg{color:var(--red);font-weight:700;}
+/* REPORT MODAL */
+#reportView{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;overflow-y:auto;padding:32px;}
+.report-paper{max-width:900px;margin:0 auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.report-header{background:linear-gradient(135deg,var(--green-deep) 0%,var(--green-mid) 60%,var(--green-light) 100%);padding:36px 40px;display:flex;align-items:center;justify-content:space-between;}
+.report-logo{font-family:Georgia,serif;font-style:italic;font-size:36px;font-weight:700;color:white;}
+.report-logo .dot{color:var(--green-light);}
+.report-title{font-size:20px;font-weight:800;color:white;text-align:right;}
+.report-subtitle{font-size:13px;color:rgba(255,255,255,.7);margin-top:4px;text-align:right;}
+.report-meta{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--border);}
+.report-meta-item{padding:18px 24px;border-right:1px solid var(--border);}
+.report-meta-item:last-child{border-right:none;}
+.report-meta-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-light);margin-bottom:4px;}
+.report-meta-value{font-size:18px;font-weight:800;color:var(--text);}
+.report-meta-value.green{color:var(--green-deep);}
+.report-meta-value.red{color:var(--red);}
+.report-body{padding:28px 40px;}
+.report-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--green-deep);border-bottom:2px solid var(--green-pale);padding-bottom:8px;margin-bottom:16px;margin-top:24px;}
+.report-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:20px;}
+.report-table thead tr{background:var(--green-deep);}
+.report-table thead th{color:white;padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.report-table tbody tr{border-bottom:1px solid #EEF7F6;}
+.report-table tbody tr:nth-child(even){background:var(--green-pale);}
+.report-table tbody td{padding:9px 12px;}
+.report-table tfoot tr{background:#D0EDE9;border-top:2px solid var(--green-mid);}
+.report-table tfoot td{padding:10px 12px;font-weight:800;color:var(--green-deep);}
+.report-actions{display:flex;gap:10px;padding:20px 40px;border-top:1px solid var(--border);}
+.report-footer{background:var(--green-deep);padding:18px 40px;display:flex;align-items:center;justify-content:space-between;}
+.report-footer-text{font-size:11px;color:rgba(255,255,255,.5);}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.grid-2{grid-template-columns:1fr;}}
+@media(max-width:768px){.sidebar{display:none;}.content{margin-left:0;}.main{padding:16px;}.topbar{padding:0 16px;}}
+@media print{.sidebar,.topbar,.filterbar,.btn,.alert,.month-strip{display:none!important;}.content{margin-left:0;}.main{padding:0;}}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-logo">Medley<span class="dot">.</span></div>
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Conectando ao banco de dados...</div>
+</div>
+
+<div class="layout">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">Medley<span class="dot">.</span></div>
+    <div class="logo-sub">Budget Control</div>
+  </div>
+  <div class="sidebar-section">Principal</div>
+  <div class="nav-item active"><span class="icon">📊</span> Dashboard</div>
+  <div class="nav-item" onclick="toggleImport()"><span class="icon">⬆</span> Importar SAP</div>
+  <div class="nav-item" onclick="loadLancamentos()"><span class="icon">📋</span> Lançamentos</div>
+  <div class="nav-item"><span class="icon">🎯</span> Gestão de Budget</div>
+  <div class="sidebar-section">Relatórios</div>
+  <div class="nav-item" onclick="openReport()"><span class="icon">📄</span> Relatório Executivo</div>
+  <div class="nav-item"><span class="icon">🚨</span> Análise de Estouro</div>
+  <div class="sidebar-section">Config.</div>
+  <div class="nav-item"><span class="icon">⚙</span> Categorias</div>
+  <div class="nav-item"><span class="icon">👥</span> Usuários</div>
+  <div class="sidebar-bottom" id="lastSync">Sincronizando...</div>
+</aside>
+
+<!-- CONTENT -->
+<div class="content">
+<header class="topbar">
+  <div>
+    <div class="topbar-title">Dashboard de Budget</div>
+    <div class="topbar-breadcrumb" id="topbarSub">Logística · Carregando...</div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn btn-ghost" onclick="refreshData()">🔄 Atualizar</button>
+    <button class="btn btn-ghost" onclick="toggleImport()">⬆ Importar SAP</button>
+    <button class="btn btn-gold" onclick="openReport()">📄 Relatório Executivo</button>
+    <div class="avatar">GL</div>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- ALERT AREA -->
+  <div id="alertArea"></div>
+
+  <!-- FILTER BAR -->
+  <div class="filterbar">
+    <div class="filter-group">
+      <span class="filter-label">Ano</span>
+      <select class="filter-select" id="filterAno" onchange="refreshData()">
+        <option value="2026">2026</option>
+        <option value="2025">2025</option>
+      </select>
+    </div>
+    <div class="filter-sep"></div>
+    <div class="filter-group">
+      <span class="filter-label">Período</span>
+      <select class="filter-select" id="filterMes" onchange="refreshData()">
+        <option value="0">Acumulado (ano todo)</option>
+        <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+        <option value="3">Março</option><option value="4">Abril</option>
+        <option value="5">Maio</option><option value="6">Junho</option>
+        <option value="7">Julho</option><option value="8">Agosto</option>
+        <option value="9">Setembro</option><option value="10">Outubro</option>
+        <option value="11">Novembro</option><option value="12">Dezembro</option>
+      </select>
+    </div>
+    <div class="filter-sep"></div>
+    <div class="filter-group">
+      <span class="filter-label">Categoria</span>
+      <select class="filter-select" id="filterCat" onchange="refreshData()">
+        <option value="">Todas</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-icon">🎯</div>
+      <div class="kpi-label">Budget Total</div>
+      <div class="kpi-value" id="kpiBudget">—</div>
+      <div class="kpi-sub" id="kpiBudgetSub">Carregando...</div>
+    </div>
+    <div class="kpi teal">
+      <div class="kpi-icon">✅</div>
+      <div class="kpi-label">Realizado</div>
+      <div class="kpi-value" id="kpiRealizado">—</div>
+      <div class="kpi-sub" id="kpiRealizadoSub">Carregando...</div>
+      <span class="kpi-tag tag-green" id="kpiRealizadoTag"></span>
+    </div>
+    <div class="kpi gold">
+      <div class="kpi-icon">📌</div>
+      <div class="kpi-label">Comprometido</div>
+      <div class="kpi-value" id="kpiComp">—</div>
+      <div class="kpi-sub">Realizado + Provisões</div>
+      <span class="kpi-tag tag-gold" id="kpiCompTag"></span>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-icon">⚠️</div>
+      <div class="kpi-label">Categorias em Alerta</div>
+      <div class="kpi-value" id="kpiAlertas">—</div>
+      <div class="kpi-sub" id="kpiAlertasSub">Carregando...</div>
+      <span class="kpi-tag tag-red" id="kpiAlertasTag"></span>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><div class="accent"></div>Budget vs Realizado vs Comprometido — Mensal</div>
+      </div>
+      <div class="card-body">
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#006B5B"></div>Budget</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#009B8D"></div>Realizado</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#F0A500"></div>Comprometido</div>
+        </div>
+        <canvas id="chartMensal" height="200"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><div class="accent" style="background:var(--gold)"></div>Distribuição por Categoria</div>
+      </div>
+      <div class="card-body">
+        <canvas id="chartPie" height="200"></canvas>
+      </div>
+      <div class="summary-row">
+        <div class="summary-item"><div class="summary-value" id="sumBudget">—</div><div class="summary-label">Budget</div></div>
+        <div class="summary-item"><div class="summary-value" id="sumComp">—</div><div class="summary-label">Comprometido</div></div>
+        <div class="summary-item"><div class="summary-value" id="sumSaldo" style="color:var(--green-deep)">—</div><div class="summary-label">Saldo</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONTH STRIP -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-header" style="margin-bottom:14px">
+      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>Navegação Mensal</div>
+    </div>
+    <div class="month-strip" id="monthStrip"></div>
+  </div>
+
+  <!-- DETAIL TABLE -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-header" style="margin-bottom:0">
+      <div class="card-title"><div class="accent" style="background:var(--yellow)"></div>Detalhamento por Categoria</div>
+      <div class="card-actions">
+        <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="exportCSV()">⬇ CSV</button>
+      </div>
+    </div>
+    <div class="card-body" style="padding-top:16px">
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th>Categoria</th><th>Budget</th><th>Realizado</th>
+          <th>Provisão</th><th>Comprometido</th><th>Saldo</th><th>% Utilizado</th><th>Status</th>
+        </tr></thead>
+        <tbody id="tabelaDetalhe"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- LANCAMENTOS TABLE -->
+  <div class="card" id="lancamentosCard" style="display:none;margin-bottom:24px">
+    <div class="card-header" style="margin-bottom:0">
+      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>Lançamentos do SAP</div>
+      <div class="card-actions">
+        <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="document.getElementById('lancamentosCard').style.display='none'">✕</button>
+      </div>
+    </div>
+    <div class="card-body" style="padding-top:16px">
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th>Pedido</th><th>Descrição</th><th>Fornecedor</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Categoria</th>
+        </tr></thead>
+        <tbody id="tabelaLancamentos"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- IMPORT CARD -->
+  <div class="card" id="importCard" style="display:none;margin-bottom:24px">
+    <div class="card-header" style="margin-bottom:0">
+      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>Importar Dados do SAP</div>
+      <div class="card-actions">
+        <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="toggleImport()">✕ Fechar</button>
+      </div>
+    </div>
+    <div class="tabs" style="margin-top:12px">
+      <div class="tab active">📄 Upload CSV / XLSX</div>
+    </div>
+    <div class="import-drop" onclick="document.getElementById('fileIn').click()">
+      <div class="import-drop-icon">📂</div>
+      <div class="import-drop-title">Arraste o arquivo aqui ou clique para selecionar</div>
+      <div class="import-drop-sub">Aceita .CSV exportado do SAP · Colunas: numero_pedido, descricao, fornecedor, data_lancamento, valor, tipo</div>
+      <input type="file" id="fileIn" accept=".csv" style="display:none" onchange="handleCSV(this)">
+    </div>
+    <div style="margin:0 22px 20px;padding:14px 16px;background:var(--green-pale);border-radius:8px;font-size:12px;color:var(--text-mid)">
+      <strong style="color:var(--green-deep)">📌 Colunas esperadas no CSV:</strong> numero_pedido · descricao · fornecedor · data_lancamento (DD/MM/AAAA) · valor · tipo (realizado ou provisao) · categoria_id (opcional)
+    </div>
+    <div id="previewWrap" style="display:none;padding:0 22px 22px">
+      <div style="font-size:13px;font-weight:700;color:var(--green-deep);margin-bottom:12px">Pré-visualização — revise antes de importar:</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Pedido</th><th>Descrição</th><th>Fornecedor</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Categoria</th></tr></thead>
+        <tbody id="previewBody"></tbody>
+      </table></div>
+      <div style="margin-top:16px;display:flex;gap:10px">
+        <button class="btn btn-primary" onclick="confirmImport()">✅ Confirmar e Salvar no Banco</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('previewWrap').style.display='none'">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /content -->
+</div><!-- /layout -->
+
+<!-- REPORT MODAL -->
+<div id="reportView">
+  <div class="report-paper">
+    <div class="report-header">
+      <div class="report-logo">Medley<span class="dot">.</span></div>
+      <div>
+        <div class="report-title">Relatório Executivo de Budget</div>
+        <div class="report-subtitle" id="reportSubtitle">Logística · Carregando...</div>
+      </div>
+    </div>
+    <div class="report-meta">
+      <div class="report-meta-item"><div class="report-meta-label">Budget</div><div class="report-meta-value" id="rBudget">—</div></div>
+      <div class="report-meta-item"><div class="report-meta-label">Realizado</div><div class="report-meta-value green" id="rReal">—</div></div>
+      <div class="report-meta-item"><div class="report-meta-label">Comprometido</div><div class="report-meta-value" style="color:var(--yellow)" id="rComp">—</div></div>
+      <div class="report-meta-item"><div class="report-meta-label">Saldo</div><div class="report-meta-value green" id="rSaldo">—</div></div>
+    </div>
+    <div class="report-body">
+      <div class="report-section-title">📊 Resumo por Categoria</div>
+      <table class="report-table">
+        <thead><tr><th>Categoria</th><th>Budget</th><th>Realizado</th><th>Provisão</th><th>Comprometido</th><th>Saldo</th><th>%</th><th>Status</th></tr></thead>
+        <tbody id="reportTableBody"></tbody>
+        <tfoot><tr id="reportTotals"></tr></tfoot>
+      </table>
+      <div class="report-section-title">🚨 Categorias em Alerta</div>
+      <table class="report-table">
+        <thead><tr><th>Categoria</th><th>Status</th><th>% Utilizado</th><th>Saldo / Estouro</th></tr></thead>
+        <tbody id="reportAlertBody"></tbody>
+      </table>
+      <div style="margin-top:20px;padding:14px 16px;background:var(--green-pale);border-radius:8px;font-size:11px;color:var(--text-mid)">
+        <strong style="color:var(--green-deep)">Nota:</strong> Relatório gerado automaticamente pelo sistema Budget Control Medley com dados do Supabase. Gerado em <span id="reportDate"></span>.
+      </div>
+    </div>
+    <div class="report-actions">
+      <button class="btn btn-primary" onclick="window.print()">🖨 Imprimir / Salvar PDF</button>
+      <button class="btn btn-ghost" onclick="closeReport()">✕ Fechar</button>
+    </div>
+    <div class="report-footer">
+      <div class="report-footer-text">Medley — Controle Orçamentário Logístico · Documento interno · Confidencial</div>
+      <div class="report-footer-text" id="reportFooterDate"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SUPABASE CONFIG ────────────────────────────────────────────
+const SUPABASE_URL = 'https://nlrzmvncwlbzuxlwnpld.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_dlJ-y9birCNkFBYaIfA_qw_KEPv-G54';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── STATE ──────────────────────────────────────────────────────
+let chartMensal = null, chartPie = null;
+let allData = [], categorias = [];
+let pendingImport = [];
+
+const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+function fmt(v) {
+  return 'R$ ' + Math.abs(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+}
+function fmtShort(v) {
+  const n = Math.abs(v||0);
+  if(n>=1000000) return 'R$ '+(n/1000000).toFixed(1)+'M';
+  if(n>=1000) return 'R$ '+(n/1000).toFixed(0)+'k';
+  return fmt(v);
+}
+function today() { return new Date().toLocaleDateString('pt-BR'); }
+function parseDateToIso(value) {
+  const raw = (value || '').trim();
+  if (!raw) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+  const match = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (match) return `${match[3]}-${match[2]}-${match[1]}`;
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed.toISOString().slice(0, 10);
+}
+function detectDelimiter(headerLine) {
+  if ((headerLine.match(/;/g) || []).length > (headerLine.match(/,/g) || []).length) return ';';
+  return ',';
+}
+function splitCSVLine(line, delimiter) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+    if (char === delimiter && !inQuotes) {
+      result.push(current);
+      current = '';
+      continue;
+    }
+    current += char;
+  }
+  result.push(current);
+  return result.map(v => v.trim());
+}
+
+// ── LOAD DATA ──────────────────────────────────────────────────
+async function loadData() {
+  const ano = document.getElementById('filterAno').value;
+  const mes = parseInt(document.getElementById('filterMes').value);
+  const cat = document.getElementById('filterCat').value;
+  setLoading('Buscando dados do Supabase...');
+  try {
+    // Load view
+    let q = db.from('vw_resumo_anual').select('*').eq('ano', ano);
+    if(cat) q = q.eq('categoria', cat);
+    const { data, error } = await q;
+    if(error) throw error;
+    allData = data || [];
+
+    // Load monthly for chart
+    let qm = db.from('vw_budget_vs_realizado').select('*').eq('ano', ano);
+    if(cat) qm = qm.eq('categoria', cat);
+    const { data: monthly, error: e2 } = await qm;
+    if(e2) throw e2;
+
+    // Load alertas
+    const { data: alertas } = await db.from('vw_alertas').select('*').eq('ano', ano);
+
+    hideLoading();
+    updateKPIs(allData, alertas||[]);
+    updateCharts(monthly||[], allData);
+    updateTable(allData);
+    updateMonthStrip(monthly||[]);
+    updateTopbar(ano, mes);
+    showSuccessAlert('✅ Dados carregados do Supabase com sucesso!');
+  } catch(err) {
+    hideLoading();
+    showErrorAlert('Erro ao carregar dados: ' + err.message + '. Usando dados de demonstração.');
+    loadDemoData();
+  }
+}
+
+async function loadCategories() {
+  const sel = document.getElementById('filterCat');
+  if(!sel) return;
+  const currentValue = sel.value;
+  sel.innerHTML = '<option value="">Todas</option>';
+  const { data, error } = await db.from('categorias').select('*').eq('ativo', true);
+  let rows = (!error && data && data.length) ? data : [];
+  if(!rows.length) {
+    const ano = document.getElementById('filterAno').value;
+    const { data: fallback } = await db.from('vw_resumo_anual').select('categoria').eq('ano', ano);
+    rows = [...new Map((fallback || []).filter(r => r.categoria).map(r => [r.categoria, { nome: r.categoria }])).values()];
+  }
+  categorias = rows;
+  categorias.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c.nome; o.textContent = c.nome;
+    if (c.nome === currentValue) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+async function loadLancamentos() {
+  const card = document.getElementById('lancamentosCard');
+  card.style.display = 'block';
+  card.scrollIntoView({behavior:'smooth'});
+  const ano = document.getElementById('filterAno').value;
+  const { data, error } = await db.from('lancamentos')
+    .select('*, categorias(nome)')
+    .eq('ano', ano)
+    .order('data_lancamento', {ascending:false})
+    .limit(50);
+  const tb = document.getElementById('tabelaLancamentos');
+  if(error || !data?.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:20px">Nenhum lançamento encontrado</td></tr>'; return; }
+  tb.innerHTML = data.map(r => `<tr>
+    <td>${r.numero_pedido||'—'}</td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.descricao||''}">${r.descricao||'—'}</td>
+    <td>${r.fornecedor||'—'}</td>
+    <td>${r.data_lancamento ? new Date(r.data_lancamento).toLocaleDateString('pt-BR') : '—'}</td>
+    <td><span class="pill ${r.tipo==='realizado'?'pill-green':'pill-yellow'}">${r.tipo}</span></td>
+    <td style="font-weight:600">${fmt(r.valor)}</td>
+    <td>${r.categorias?.nome||'—'}</td>
+  </tr>`).join('');
+}
+
+// ── UPDATE UI ──────────────────────────────────────────────────
+function updateKPIs(data, alertas) {
+  const totB = data.reduce((s,r)=>s+(r.budget_anual||0),0);
+  const totR = data.reduce((s,r)=>s+(r.realizado_acumulado||0),0);
+  const totP = data.reduce((s,r)=>s+(r.provisao_acumulada||0),0);
+  const totC = totR+totP, totS = totB-totC;
+  const pctR = totB?Math.round(totR/totB*100):0;
+  const pctC = totB?Math.round(totC/totB*100):0;
+  const nAlertas = alertas.length;
+
+  document.getElementById('kpiBudget').textContent = fmtShort(totB);
+  document.getElementById('kpiBudgetSub').textContent = `Planejado ${document.getElementById('filterAno').value}`;
+  document.getElementById('kpiRealizado').textContent = fmtShort(totR);
+  document.getElementById('kpiRealizadoSub').textContent = 'Notas fiscais registradas';
+  document.getElementById('kpiRealizadoTag').textContent = `↑ ${pctR}% do budget`;
+  document.getElementById('kpiComp').textContent = fmtShort(totC);
+  document.getElementById('kpiCompTag').textContent = `${pctC}% do budget`;
+  document.getElementById('kpiAlertas').textContent = nAlertas ? `${nAlertas} ${nAlertas===1?'alerta':'alertas'}` : 'Tudo OK ✓';
+  document.getElementById('kpiAlertasSub').textContent = nAlertas ? alertas.slice(0,2).map(a=>a.categoria).join(' · ') : 'Nenhum estouro detectado';
+  if(!nAlertas) document.querySelector('.kpi.red').querySelector('.kpi-value').style.color='var(--green-deep)';
+
+  // Summary row
+  document.getElementById('sumBudget').textContent = fmtShort(totB);
+  document.getElementById('sumComp').textContent = fmtShort(totC);
+  document.getElementById('sumSaldo').textContent = fmtShort(totS);
+  document.getElementById('sumSaldo').style.color = totS>=0?'var(--green-deep)':'var(--red)';
+}
+
+function updateCharts(monthly, catData) {
+  // Group by month
+  const mBudget = Array(12).fill(0), mReal = Array(12).fill(0), mProv = Array(12).fill(0);
+  monthly.forEach(r => {
+    const i = (r.mes||1)-1;
+    mBudget[i] += r.budget||0;
+    mReal[i]   += r.realizado||0;
+    mProv[i]   += r.provisao||0;
+  });
+  const mComp = mReal.map((r,i)=>r+mProv[i]);
+  // Only show months with data
+  const hasData = mBudget.map((b,i)=>b>0||mReal[i]>0);
+  const lastIdx = hasData.lastIndexOf(true);
+  const end = lastIdx>=0 ? lastIdx+1 : 12;
+  const labels = MESES.slice(0,end);
+  const bSlice = mBudget.slice(0,end), rSlice = mReal.slice(0,end), cSlice = mComp.slice(0,end);
+
+  if(chartMensal) chartMensal.destroy();
+  chartMensal = new Chart(document.getElementById('chartMensal').getContext('2d'),{
+    type:'bar',
+    data:{ labels, datasets:[
+      {label:'Budget',data:bSlice,backgroundColor:'rgba(0,107,91,.12)',borderColor:'#006B5B',borderWidth:2,borderRadius:4},
+      {label:'Realizado',data:rSlice,backgroundColor:'rgba(0,155,141,.8)',borderColor:'#009B8D',borderWidth:0,borderRadius:4},
+      {label:'Comprometido',data:cSlice,backgroundColor:'rgba(240,165,0,.75)',borderColor:'#D9940A',borderWidth:0,borderRadius:4}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{ticks:{callback:v=>'R$ '+(v/1000).toFixed(0)+'k',font:{size:11}},grid:{color:'#EEF7F6'}},
+              x:{ticks:{font:{size:11}},grid:{display:false}}}}
+  });
+
+  // Pie
+  const cats = catData.filter(c=>c.comprometido>0);
+  if(chartPie) chartPie.destroy();
+  const CORES = ['#006B5B','#009B8D','#00C4B3','#F0A500','#5DB8AA','#C8E6E3','#95A5A6'];
+  chartPie = new Chart(document.getElementById('chartPie').getContext('2d'),{
+    type:'doughnut',
+    data:{labels:cats.map(c=>c.categoria),
+          datasets:[{data:cats.map(c=>c.comprometido),backgroundColor:cats.map((_,i)=>CORES[i%CORES.length]),borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:11,padding:9,color:'#4A6461'}}}}
+  });
+}
+
+function updateTable(data) {
+  const tb = document.getElementById('tabelaDetalhe');
+  if(!data.length){ tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#aaa;padding:24px">Nenhum dado encontrado para os filtros selecionados</td></tr>'; return; }
+  let totB=0,totR=0,totP=0,totC=0;
+  const CORES=['#006B5B','#009B8D','#00C4B3','#F0A500','#5DB8AA','#C8E6E3'];
+  tb.innerHTML = data.map((c,i)=>{
+    const comp=c.comprometido||0, saldo=c.saldo_anual||0, pct=c.pct_utilizado||0;
+    totB+=c.budget_anual||0; totR+=c.realizado_acumulado||0; totP+=c.provisao_acumulada||0; totC+=comp;
+    const over=saldo<0, warn=pct>=80&&pct<100;
+    const pillHtml=over?'<span class="pill pill-red">🔴 Estouro</span>':warn?'<span class="pill pill-yellow">🟡 Atenção</span>':pct===0?'<span class="pill pill-gray">⚪ Sem dados</span>':'<span class="pill pill-green">🟢 OK</span>';
+    const barCol=over?'#D63031':warn?'#F39C12':'#009B8D';
+    return `<tr>
+      <td class="td-cat" style="border-left:3px solid ${CORES[i%CORES.length]}">&nbsp;${c.categoria}</td>
+      <td>${fmt(c.budget_anual)}</td>
+      <td>${fmt(c.realizado_acumulado)}</td>
+      <td style="color:var(--green-mid)">${fmt(c.provisao_acumulada)}</td>
+      <td style="font-weight:700">${fmt(comp)}</td>
+      <td class="${saldo>=0?'saldo-pos':'saldo-neg'}">${saldo<0?'▲ ':''}${fmt(saldo)}</td>
+      <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(pct,100)}%;background:${barCol}"></div></div><div class="bar-pct" style="color:${barCol}">${pct}%</div></div></td>
+      <td>${pillHtml}</td>
+    </tr>`;
+  }).join('');
+  const totS=totB-totC, totPct=totB?Math.round(totC/totB*100):0;
+  tb.innerHTML+=`<tr class="total-row">
+    <td>TOTAL GERAL</td><td>${fmt(totB)}</td><td>${fmt(totR)}</td>
+    <td style="color:var(--green-mid)">${fmt(totP)}</td><td>${fmt(totC)}</td>
+    <td class="${totS>=0?'saldo-pos':'saldo-neg'}">${fmt(totS)}</td>
+    <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(totPct,100)}%;background:#009B8D"></div></div><div class="bar-pct" style="color:#009B8D">${totPct}%</div></div></td>
+    <td>—</td>
+  </tr>`;
+}
+
+function updateMonthStrip(monthly) {
+  const byMonth = {};
+  monthly.forEach(r => {
+    if(!byMonth[r.mes]) byMonth[r.mes]={budget:0,comp:0};
+    byMonth[r.mes].budget += r.budget||0;
+    byMonth[r.mes].comp   += (r.realizado||0)+(r.provisao||0);
+  });
+  const strip = document.getElementById('monthStrip');
+  strip.innerHTML = MESES.map((m,i)=>{
+    const mes=i+1, d=byMonth[mes];
+    if(!d||d.budget===0) return `<div class="month-chip future" onclick="selectMonth(${mes})">${m}</div>`;
+    const pct=d.budget?Math.round(d.comp/d.budget*100):0;
+    const cls=pct>=100?'over':pct>=80?'warn':'';
+    const icon=pct>=100?'🔴':pct>=80?'⚠':'✓';
+    return `<div class="month-chip ${cls}" onclick="selectMonth(${mes})">${m} ${icon}</div>`;
+  }).join('');
+}
+
+function updateTopbar(ano, mes) {
+  const label = mes===0?`Acumulado ${ano}`:`${MESES[mes-1]}/${ano}`;
+  document.getElementById('topbarSub').textContent = `Logística · ${label}`;
+  document.getElementById('lastSync').textContent = `Sync: ${today()}`;
+}
+
+// ── INTERACTIONS ───────────────────────────────────────────────
+function selectMonth(mes) {
+  document.getElementById('filterMes').value = mes;
+  document.querySelectorAll('.month-chip').forEach((c,i)=>{
+    c.classList.toggle('active', i+1===mes);
+  });
+  refreshData();
+}
+
+async function refreshData() {
+  await loadCategories();
+  await loadData();
+}
+
+function toggleImport() {
+  const c=document.getElementById('importCard');
+  c.style.display=c.style.display==='none'?'block':'none';
+  if(c.style.display==='block') c.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── CSV IMPORT ─────────────────────────────────────────────────
+const RULES=[
+  {id:1,cat:'Warehouse DHL',keys:['dhl','warehouse']},
+  {id:2,cat:'Frete Nacional',keys:['frete','transporte','cte','entrega']},
+  {id:3,cat:'Frete Internacional',keys:['import','export','aduana','freight']},
+  {id:4,cat:'Armazenagem',keys:['armazenagem','storage','pallet']},
+  {id:5,cat:'Handling',keys:['handling','movimentação','crossdocking']},
+];
+function autoCategId(desc){
+  const d=(desc||'').toLowerCase();
+  for(const r of RULES) if(r.keys.some(k=>d.includes(k))) return r.id;
+  return 7;
+}
+function autoCategNome(desc){
+  const d=(desc||'').toLowerCase();
+  for(const r of RULES) if(r.keys.some(k=>d.includes(k))) return r.cat;
+  return 'Outros';
+}
+
+function handleCSV(input) {
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const rawText = (e.target.result || '').replace(/^\uFEFF/, '').replace(/\r/g, '');
+    const lines = rawText.split('\n').filter(l=>l.trim());
+    if(!lines.length) {
+      showErrorAlert('Arquivo CSV vazio ou inv?lido.');
+      return;
+    }
+    const delimiter = detectDelimiter(lines[0]);
+    const headers = splitCSVLine(lines[0], delimiter).map(h=>h.trim().toLowerCase().replace(/['\"]/g,''));
+    const anoSelecionado = parseInt(document.getElementById('filterAno').value, 10);
+    pendingImport = lines.slice(1).map(line=>{
+      const vals = splitCSVLine(line, delimiter).map(v=>v.replace(/['\"]/g,''));
+      const obj = {};
+      headers.forEach((h,i)=>obj[h]=vals[i]||'');
+      const dataOriginal = obj.data_lancamento||obj.data||'';
+      const dataIso = parseDateToIso(dataOriginal);
+      const valor = parseFloat((obj.valor||'0').replace(/[R$\s.]/g,'').replace(',','.'))||0;
+      const descricao = obj.descricao||obj.description||'';
+      return {
+        numero_pedido: obj.numero_pedido||obj.nr_pedido||obj.n_pedido||obj.pedido||'',
+        descricao,
+        fornecedor: obj.fornecedor||obj.supplier||'',
+        data_lancamento: dataIso,
+        data_lancamento_raw: dataOriginal,
+        valor,
+        tipo: (obj.tipo||'realizado').toLowerCase().includes('prov')?'provisao':'realizado',
+        categoria_id: parseInt(obj.categoria_id, 10) || autoCategId(descricao),
+        ano: dataIso ? parseInt(dataIso.slice(0, 4), 10) : anoSelecionado
+      };
+    }).filter(r=>r.valor>0);
+
+    const invalidDates = pendingImport.filter(r => !r.data_lancamento);
+    if(invalidDates.length) {
+      pendingImport = [];
+      document.getElementById('previewWrap').style.display='none';
+      showErrorAlert('N?o consegui interpretar ' + invalidDates.length + ' data(s) do CSV. Use o formato DD/MM/AAAA ou AAAA-MM-DD.');
+      return;
+    }
+
+    document.getElementById('previewWrap').style.display='block';
+    document.getElementById('previewBody').innerHTML = pendingImport.map(r=>`<tr>
+      <td>${r.numero_pedido}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.descricao}</td>
+      <td>${r.fornecedor}</td>
+      <td>${r.data_lancamento_raw || r.data_lancamento}</td>
+      <td><span class="pill ${r.tipo==='realizado'?'pill-green':'pill-yellow'}">${r.tipo}</span></td>
+      <td style="font-weight:600">${fmt(r.valor)}</td>
+      <td>${autoCategNome(r.descricao)}</td>
+    </tr>`).join('');
+  };
+  reader.readAsText(file);
+}
+
+async function confirmImport() {
+  if(!pendingImport.length){ alert('Nenhum registro para importar.'); return; }
+  const totalRegistros = pendingImport.length;
+  const payload = pendingImport.map(({ data_lancamento_raw, ...row }) => row);
+  setLoading(`Salvando ${totalRegistros} registros no Supabase...`);
+  const { error } = await db.from('lancamentos').insert(payload);
+  hideLoading();
+  if(error){
+    const hint = error.message && error.message.toLowerCase().includes('row-level security')
+      ? ' Verifique a policy de INSERT da tabela lancamentos no Supabase.'
+      : '';
+    showErrorAlert('Erro ao importar: '+error.message + hint);
+    return;
+  }
+  document.getElementById('importCard').style.display='none';
+  document.getElementById('previewWrap').style.display='none';
+  document.getElementById('fileIn').value='';
+  pendingImport=[];
+  showSuccessAlert(totalRegistros + ' registros importados com sucesso! Atualizando dashboard...');
+  setTimeout(()=>loadData(), 1000);
+}
+// ── EXPORT ────────────────────────────────────────────────────
+function exportCSV() {
+  const rows = [['Categoria','Budget Anual','Realizado','Provisão','Comprometido','Saldo','% Utilizado','Status']];
+  allData.forEach(c=>{
+    const s=c.saldo_anual||0;
+    rows.push([c.categoria,c.budget_anual,c.realizado_acumulado,c.provisao_acumulada,c.comprometido,s,c.pct_utilizado+'%',c.status]);
+  });
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download=`Medley_Budget_${document.getElementById('filterAno').value}.csv`;
+  a.click();
+}
+
+// ── REPORT ────────────────────────────────────────────────────
+function openReport() {
+  const ano=document.getElementById('filterAno').value;
+  document.getElementById('reportSubtitle').textContent=`Logística · Acumulado ${ano} · Emitido em ${today()}`;
+  document.getElementById('reportDate').textContent=today();
+  document.getElementById('reportFooterDate').textContent=`Gerado em ${today()}`;
+  let totB=0,totR=0,totP=0,totC=0;
+  const CORES=['#006B5B','#009B8D','#00C4B3','#F0A500','#5DB8AA','#C8E6E3'];
+  document.getElementById('reportTableBody').innerHTML = allData.map((c,i)=>{
+    const comp=c.comprometido||0,saldo=c.saldo_anual||0,pct=c.pct_utilizado||0;
+    totB+=c.budget_anual||0;totR+=c.realizado_acumulado||0;totP+=c.provisao_acumulada||0;totC+=comp;
+    const status=saldo<0?'<span class="pill pill-red">Estouro</span>':pct>=80?'<span class="pill pill-yellow">Atenção</span>':'<span class="pill pill-green">OK</span>';
+    return `<tr>
+      <td><strong>${c.categoria}</strong></td>
+      <td>${fmt(c.budget_anual)}</td><td>${fmt(c.realizado_acumulado)}</td>
+      <td>${fmt(c.provisao_acumulada)}</td><td><strong>${fmt(comp)}</strong></td>
+      <td style="color:${saldo>=0?'#006B5B':'#D63031'};font-weight:700">${saldo<0?'▲ ':''}${fmt(saldo)}</td>
+      <td style="font-weight:700;color:${pct>=100?'#D63031':pct>=80?'#F39C12':'#006B5B'}">${pct}%</td>
+      <td>${status}</td>
+    </tr>`;
+  }).join('');
+  const totS=totB-totC;
+  document.getElementById('reportTotals').innerHTML=`<td><strong>TOTAL</strong></td><td><strong>${fmt(totB)}</strong></td><td><strong>${fmt(totR)}</strong></td><td><strong>${fmt(totP)}</strong></td><td><strong>${fmt(totC)}</strong></td><td style="color:${totS>=0?'#006B5B':'#D63031'}"><strong>${fmt(totS)}</strong></td><td><strong>${totB?Math.round(totC/totB*100):0}%</strong></td><td>—</td>`;
+  document.getElementById('rBudget').textContent=fmtShort(totB);
+  document.getElementById('rReal').textContent=fmtShort(totR);
+  document.getElementById('rComp').textContent=fmtShort(totC);
+  document.getElementById('rSaldo').textContent=fmtShort(totS);
+  document.getElementById('rSaldo').style.color=totS>=0?'var(--green-deep)':'var(--red)';
+  const alertas=allData.filter(c=>(c.pct_utilizado||0)>=80);
+  document.getElementById('reportAlertBody').innerHTML=alertas.length?alertas.map(c=>`<tr>
+    <td><strong>${c.categoria}</strong></td>
+    <td>${(c.saldo_anual||0)<0?'<span class="pill pill-red">Estouro</span>':'<span class="pill pill-yellow">Atenção</span>'}</td>
+    <td style="font-weight:700;color:${(c.pct_utilizado||0)>=100?'#D63031':'#F39C12'}">${c.pct_utilizado}%</td>
+    <td style="font-weight:700;color:${(c.saldo_anual||0)>=0?'#006B5B':'#D63031'}">${(c.saldo_anual||0)<0?'▲ ':''}${fmt(c.saldo_anual)}</td>
+  </tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:#888;padding:16px">Nenhuma categoria em alerta 🎉</td></tr>';
+  document.getElementById('reportView').style.display='block';
+  document.body.style.overflow='hidden';
+}
+function closeReport(){document.getElementById('reportView').style.display='none';document.body.style.overflow='';}
+document.getElementById('reportView').addEventListener('click',function(e){if(e.target===this)closeReport();});
+
+// ── ALERTS ────────────────────────────────────────────────────
+function showAlert(html, type='') {
+  document.getElementById('alertArea').innerHTML=`<div class="alert ${type}">${html}<div class="alert-close" onclick="this.parentElement.remove()">✕</div></div>`;
+  setTimeout(()=>{ const a=document.getElementById('alertArea'); if(a) a.innerHTML=''; },6000);
+}
+function showSuccessAlert(msg){showAlert(`<div class="alert-icon">✅</div><div class="alert-body"><div class="alert-title">${msg}</div></div>`,'alert-success');}
+function showErrorAlert(msg){showAlert(`<div class="alert-icon">⚠️</div><div class="alert-body"><div class="alert-title" style="color:#922B21">${msg}</div></div>`);}
+
+// ── LOADING ───────────────────────────────────────────────────
+function setLoading(msg){document.getElementById('loadingText').textContent=msg;document.getElementById('loadingOverlay').style.display='flex';}
+function hideLoading(){document.getElementById('loadingOverlay').style.display='none';}
+
+// ── DEMO FALLBACK ─────────────────────────────────────────────
+function loadDemoData() {
+  const demo=[
+    {categoria:'Warehouse DHL',budget_anual:960000,realizado_acumulado:612000,provisao_acumulada:86200,comprometido:698200,saldo_anual:261800,pct_utilizado:73,status:'OK'},
+    {categoria:'Frete Nacional',budget_anual:780000,realizado_acumulado:512000,provisao_acumulada:43000,comprometido:555000,saldo_anual:225000,pct_utilizado:71,status:'OK'},
+    {categoria:'Frete Internacional',budget_anual:540000,realizado_acumulado:198000,provisao_acumulada:18000,comprometido:216000,saldo_anual:324000,pct_utilizado:40,status:'OK'},
+    {categoria:'Armazenagem',budget_anual:480000,realizado_acumulado:185000,provisao_acumulada:22000,comprometido:207000,saldo_anual:273000,pct_utilizado:43,status:'OK'},
+    {categoria:'Handling',budget_anual:300000,realizado_acumulado:80400,provisao_acumulada:8000,comprometido:88400,saldo_anual:211600,pct_utilizado:29,status:'OK'},
+  ];
+  allData=demo;
+  updateKPIs(demo,[]);
+  updateTable(demo);
+  const demoMonthly=[];
+  [270000,270000,270000,270000,270000,270000].forEach((b,i)=>{
+    demoMonthly.push({mes:i+1,budget:b,realizado:[245000,258000,261000,270000,282000,271400][i],provisao:[0,0,0,8000,12000,28800][i]});
+  });
+  updateCharts(demoMonthly,demo);
+  updateMonthStrip(demoMonthly);
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+(async () => {
+  await refreshData();
+})();
+
+</script>
+</body>
+</html>
