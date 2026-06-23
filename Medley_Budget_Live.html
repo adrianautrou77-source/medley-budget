@@ -115,6 +115,8 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--
 .card-title .accent{width:4px;height:16px;border-radius:2px;background:var(--green-mid);}
 .card-body{padding:18px 22px 22px;}
 .card-actions{display:flex;gap:6px;}
+.chart-box{position:relative;height:320px;}
+.chart-box-pie{position:relative;height:320px;}
 /* CHART LEGEND */
 .chart-legend{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-mid);font-weight:500;}
@@ -324,7 +326,9 @@ tbody td{padding:12px 16px;}
           <div class="legend-item"><div class="legend-dot" style="background:#009B8D"></div>Realizado</div>
           <div class="legend-item"><div class="legend-dot" style="background:#F0A500"></div>Comprometido</div>
         </div>
-        <canvas id="chartMensal" height="200"></canvas>
+        <div class="chart-box">
+          <canvas id="chartMensal"></canvas>
+        </div>
       </div>
     </div>
     <div class="card">
@@ -332,7 +336,9 @@ tbody td{padding:12px 16px;}
         <div class="card-title"><div class="accent" style="background:var(--gold)"></div>Distribuição por Categoria</div>
       </div>
       <div class="card-body">
-        <canvas id="chartPie" height="200"></canvas>
+        <div class="chart-box-pie">
+          <canvas id="chartPie"></canvas>
+        </div>
       </div>
       <div class="summary-row">
         <div class="summary-item"><div class="summary-value" id="sumBudget">—</div><div class="summary-label">Budget</div></div>
@@ -650,10 +656,10 @@ function updateCharts(monthly, catData) {
     mProv[i]   += r.provisao||0;
   });
   const mComp = mReal.map((r,i)=>r+mProv[i]);
-  // Only show months with data
-  const hasData = mBudget.map((b,i)=>b>0||mReal[i]>0);
-  const lastIdx = hasData.lastIndexOf(true);
-  const end = lastIdx>=0 ? lastIdx+1 : 12;
+  // Avoid drawing future empty months just because budget exists.
+  const hasActivity = mReal.map((v,i)=>v>0 || mComp[i]>0 || mProv[i]>0);
+  const lastIdx = hasActivity.lastIndexOf(true);
+  const end = lastIdx>=0 ? Math.max(lastIdx+1, 1) : 6;
   const labels = MESES.slice(0,end);
   const bSlice = mBudget.slice(0,end), rSlice = mReal.slice(0,end), cSlice = mComp.slice(0,end);
 
@@ -661,13 +667,58 @@ function updateCharts(monthly, catData) {
   chartMensal = new Chart(document.getElementById('chartMensal').getContext('2d'),{
     type:'bar',
     data:{ labels, datasets:[
-      {label:'Budget',data:bSlice,backgroundColor:'rgba(0,107,91,.12)',borderColor:'#006B5B',borderWidth:2,borderRadius:4},
-      {label:'Realizado',data:rSlice,backgroundColor:'rgba(0,155,141,.8)',borderColor:'#009B8D',borderWidth:0,borderRadius:4},
-      {label:'Comprometido',data:cSlice,backgroundColor:'rgba(240,165,0,.75)',borderColor:'#D9940A',borderWidth:0,borderRadius:4}
+      {
+        type:'line',
+        label:'Budget',
+        data:bSlice,
+        borderColor:'#006B5B',
+        backgroundColor:'rgba(0,107,91,.08)',
+        borderWidth:3,
+        pointRadius:0,
+        pointHoverRadius:4,
+        tension:.25,
+        fill:false
+      },
+      {
+        label:'Realizado',
+        data:rSlice,
+        backgroundColor:'rgba(0,155,141,.82)',
+        borderColor:'#009B8D',
+        borderWidth:0,
+        borderRadius:6,
+        categoryPercentage:.62,
+        barPercentage:.9,
+        maxBarThickness:28
+      },
+      {
+        label:'Comprometido',
+        data:cSlice,
+        backgroundColor:'rgba(240,165,0,.82)',
+        borderColor:'#D9940A',
+        borderWidth:0,
+        borderRadius:6,
+        categoryPercentage:.62,
+        barPercentage:.9,
+        maxBarThickness:28
+      }
     ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{y:{ticks:{callback:v=>'R$ '+(v/1000).toFixed(0)+'k',font:{size:11}},grid:{color:'#EEF7F6'}},
-              x:{ticks:{font:{size:11}},grid:{display:false}}}}
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{
+          beginAtZero:true,
+          ticks:{callback:v=>'R$ '+(v/1000).toFixed(0)+'k',font:{size:11}},
+          grid:{color:'#EEF7F6'}
+        },
+        x:{
+          ticks:{font:{size:11}},
+          grid:{display:false}
+        }
+      }
+    }
   });
 
   // Pie
