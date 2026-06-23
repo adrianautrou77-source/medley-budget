@@ -1008,26 +1008,6 @@ function showErrorAlert(msg){showAlert(`<div class="alert-icon">âš ï¸</di
 function setLoading(msg){document.getElementById('loadingText').textContent=msg;document.getElementById('loadingOverlay').style.display='flex';}
 function hideLoading(){document.getElementById('loadingOverlay').style.display='none';}
 
-// â”€â”€ DEMO FALLBACK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function loadDemoData() {
-  const demo=[
-    {categoria:'Warehouse DHL',budget_anual:960000,realizado_acumulado:612000,provisao_acumulada:86200,comprometido:698200,saldo_anual:261800,pct_utilizado:73,status:'OK'},
-    {categoria:'Frete Nacional',budget_anual:780000,realizado_acumulado:512000,provisao_acumulada:43000,comprometido:555000,saldo_anual:225000,pct_utilizado:71,status:'OK'},
-    {categoria:'Frete Internacional',budget_anual:540000,realizado_acumulado:198000,provisao_acumulada:18000,comprometido:216000,saldo_anual:324000,pct_utilizado:40,status:'OK'},
-    {categoria:'Armazenagem',budget_anual:480000,realizado_acumulado:185000,provisao_acumulada:22000,comprometido:207000,saldo_anual:273000,pct_utilizado:43,status:'OK'},
-    {categoria:'Handling',budget_anual:300000,realizado_acumulado:80400,provisao_acumulada:8000,comprometido:88400,saldo_anual:211600,pct_utilizado:29,status:'OK'},
-  ];
-  allData=demo;
-  updateKPIs(demo,[]);
-  updateTable(demo);
-  const demoMonthly=[];
-  [270000,270000,270000,270000,270000,270000].forEach((b,i)=>{
-    demoMonthly.push({mes:i+1,budget:b,realizado:[245000,258000,261000,270000,282000,271400][i],provisao:[0,0,0,8000,12000,28800][i]});
-  });
-  updateCharts(demoMonthly,demo);
-  updateMonthStrip(demoMonthly);
-}
-
 // â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 (async () => {
   await refreshData();
