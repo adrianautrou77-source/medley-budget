@@ -569,12 +569,22 @@ async function loadData() {
 }
 
 async function loadCategories() {
-  const { data } = await db.from('categorias').select('*').eq('ativo', true);
-  categorias = data || [];
   const sel = document.getElementById('filterCat');
+  if(!sel) return;
+  const currentValue = sel.value;
+  sel.innerHTML = '<option value="">Todas</option>';
+  const { data, error } = await db.from('categorias').select('*').eq('ativo', true);
+  let rows = (!error && data && data.length) ? data : [];
+  if(!rows.length) {
+    const ano = document.getElementById('filterAno').value;
+    const { data: fallback } = await db.from('vw_resumo_anual').select('categoria').eq('ano', ano);
+    rows = [...new Map((fallback || []).filter(r => r.categoria).map(r => [r.categoria, { nome: r.categoria }])).values()];
+  }
+  categorias = rows;
   categorias.forEach(c => {
     const o = document.createElement('option');
     o.value = c.nome; o.textContent = c.nome;
+    if (c.nome === currentValue) o.selected = true;
     sel.appendChild(o);
   });
 }
@@ -738,7 +748,10 @@ function selectMonth(mes) {
   refreshData();
 }
 
-function refreshData() { loadData(); }
+async function refreshData() {
+  await loadCategories();
+  await loadData();
+}
 
 function toggleImport() {
   const c=document.getElementById('importCard');
@@ -769,29 +782,50 @@ function handleCSV(input) {
   const file = input.files[0]; if(!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    const lines = e.target.result.split('\n').filter(l=>l.trim());
-    const headers = lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/['"]/g,''));
+    const rawText = (e.target.result || '').replace(/^\uFEFF/, '').replace(/\r/g, '');
+    const lines = rawText.split('\n').filter(l=>l.trim());
+    if(!lines.length) {
+      showErrorAlert('Arquivo CSV vazio ou inv?lido.');
+      return;
+    }
+    const delimiter = detectDelimiter(lines[0]);
+    const headers = splitCSVLine(lines[0], delimiter).map(h=>h.trim().toLowerCase().replace(/['\"]/g,''));
+    const anoSelecionado = parseInt(document.getElementById('filterAno').value, 10);
     pendingImport = lines.slice(1).map(line=>{
-      const vals = line.split(',').map(v=>v.trim().replace(/['"]/g,''));
+      const vals = splitCSVLine(line, delimiter).map(v=>v.replace(/['\"]/g,''));
       const obj = {};
       headers.forEach((h,i)=>obj[h]=vals[i]||'');
+      const dataOriginal = obj.data_lancamento||obj.data||'';
+      const dataIso = parseDateToIso(dataOriginal);
+      const valor = parseFloat((obj.valor||'0').replace(/[R$\s.]/g,'').replace(',','.'))||0;
+      const descricao = obj.descricao||obj.description||'';
       return {
-        numero_pedido: obj.numero_pedido||obj['nº pedido']||obj.pedido||'',
-        descricao: obj.descricao||obj.description||'',
+        numero_pedido: obj.numero_pedido||obj.nr_pedido||obj.n_pedido||obj.pedido||'',
+        descricao,
         fornecedor: obj.fornecedor||obj.supplier||'',
-        data_lancamento: obj.data_lancamento||obj.data||'',
-        valor: parseFloat((obj.valor||'0').replace(/[R$\s.]/g,'').replace(',','.'))||0,
+        data_lancamento: dataIso,
+        data_lancamento_raw: dataOriginal,
+        valor,
         tipo: (obj.tipo||'realizado').toLowerCase().includes('prov')?'provisao':'realizado',
-        categoria_id: autoCategId(obj.descricao||'')
+        categoria_id: parseInt(obj.categoria_id, 10) || autoCategId(descricao),
+        ano: dataIso ? parseInt(dataIso.slice(0, 4), 10) : anoSelecionado
       };
     }).filter(r=>r.valor>0);
+
+    const invalidDates = pendingImport.filter(r => !r.data_lancamento);
+    if(invalidDates.length) {
+      pendingImport = [];
+      document.getElementById('previewWrap').style.display='none';
+      showErrorAlert('N?o consegui interpretar ' + invalidDates.length + ' data(s) do CSV. Use o formato DD/MM/AAAA ou AAAA-MM-DD.');
+      return;
+    }
 
     document.getElementById('previewWrap').style.display='block';
     document.getElementById('previewBody').innerHTML = pendingImport.map(r=>`<tr>
       <td>${r.numero_pedido}</td>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.descricao}</td>
       <td>${r.fornecedor}</td>
-      <td>${r.data_lancamento}</td>
+      <td>${r.data_lancamento_raw || r.data_lancamento}</td>
       <td><span class="pill ${r.tipo==='realizado'?'pill-green':'pill-yellow'}">${r.tipo}</span></td>
       <td style="font-weight:600">${fmt(r.valor)}</td>
       <td>${autoCategNome(r.descricao)}</td>
@@ -802,17 +836,25 @@ function handleCSV(input) {
 
 async function confirmImport() {
   if(!pendingImport.length){ alert('Nenhum registro para importar.'); return; }
-  setLoading(`Salvando ${pendingImport.length} registros no Supabase...`);
-  const { error } = await db.from('lancamentos').insert(pendingImport);
+  const totalRegistros = pendingImport.length;
+  const payload = pendingImport.map(({ data_lancamento_raw, ...row }) => row);
+  setLoading(`Salvando ${totalRegistros} registros no Supabase...`);
+  const { error } = await db.from('lancamentos').insert(payload);
   hideLoading();
-  if(error){ showErrorAlert('Erro ao importar: '+error.message); return; }
+  if(error){
+    const hint = error.message && error.message.toLowerCase().includes('row-level security')
+      ? ' Verifique a policy de INSERT da tabela lancamentos no Supabase.'
+      : '';
+    showErrorAlert('Erro ao importar: '+error.message + hint);
+    return;
+  }
   document.getElementById('importCard').style.display='none';
   document.getElementById('previewWrap').style.display='none';
+  document.getElementById('fileIn').value='';
   pendingImport=[];
-  showSuccessAlert(`✅ ${pendingImport.length||'Registros'} importados com sucesso! Atualizando dashboard...`);
+  showSuccessAlert(totalRegistros + ' registros importados com sucesso! Atualizando dashboard...');
   setTimeout(()=>loadData(), 1000);
 }
-
 // ── EXPORT ────────────────────────────────────────────────────
 function exportCSV() {
   const rows = [['Categoria','Budget Anual','Realizado','Provisão','Comprometido','Saldo','% Utilizado','Status']];
@@ -902,120 +944,9 @@ function loadDemoData() {
 
 // ── INIT ──────────────────────────────────────────────────────
 (async () => {
-  await loadCategories();
-  await loadData();
+  await refreshData();
 })();
 
-// Regras reforçadas para import do SAP: data em ISO, delimitador dinâmico e payload compatível com Supabase.
-async function loadCategories() {
-  const sel = document.getElementById('filterCat');
-  if(!sel) return;
-  sel.innerHTML = '<option value="">Todas</option>';
-
-  const { data, error } = await db.from('categorias').select('*').eq('ativo', true);
-  let rows = (!error && data && data.length) ? data : [];
-
-  if(!rows.length) {
-    const ano = document.getElementById('filterAno').value;
-    const { data: fallback } = await db.from('vw_resumo_anual').select('categoria').eq('ano', ano);
-    rows = [...new Map((fallback || []).filter(r => r.categoria).map(r => [r.categoria, { nome: r.categoria }])).values()];
-  }
-
-  categorias = rows;
-  categorias.forEach(c => {
-    const o = document.createElement('option');
-    o.value = c.nome;
-    o.textContent = c.nome;
-    sel.appendChild(o);
-  });
-}
-
-async function refreshData() {
-  await loadCategories();
-  await loadData();
-}
-
-function handleCSV(input) {
-  const file = input.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const rawText = (e.target.result || '').replace(/^\uFEFF/, '').replace(/\r/g, '');
-    const lines = rawText.split('\n').filter(l=>l.trim());
-    if(!lines.length) {
-      showErrorAlert('Arquivo CSV vazio ou inválido.');
-      return;
-    }
-
-    const delimiter = detectDelimiter(lines[0]);
-    const headers = splitCSVLine(lines[0], delimiter).map(h=>h.trim().toLowerCase().replace(/['"]/g,''));
-    const anoSelecionado = parseInt(document.getElementById('filterAno').value, 10);
-
-    pendingImport = lines.slice(1).map(line=>{
-      const vals = splitCSVLine(line, delimiter).map(v=>v.replace(/['"]/g,''));
-      const obj = {};
-      headers.forEach((h,i)=>obj[h]=vals[i]||'');
-
-      const dataOriginal = obj.data_lancamento||obj.data||'';
-      const dataIso = parseDateToIso(dataOriginal);
-      const valor = parseFloat((obj.valor||'0').replace(/[R$\s.]/g,'').replace(',','.'))||0;
-      const descricao = obj.descricao||obj.description||'';
-
-      return {
-        numero_pedido: obj.numero_pedido||obj['nÂº pedido']||obj.pedido||'',
-        descricao,
-        fornecedor: obj.fornecedor||obj.supplier||'',
-        data_lancamento: dataIso,
-        data_lancamento_raw: dataOriginal,
-        valor,
-        tipo: (obj.tipo||'realizado').toLowerCase().includes('prov')?'provisao':'realizado',
-        categoria_id: parseInt(obj.categoria_id, 10) || autoCategId(descricao),
-        ano: dataIso ? parseInt(dataIso.slice(0, 4), 10) : anoSelecionado
-      };
-    }).filter(r=>r.valor>0);
-
-    const invalidDates = pendingImport.filter(r => !r.data_lancamento);
-    if(invalidDates.length) {
-      pendingImport = [];
-      document.getElementById('previewWrap').style.display='none';
-      showErrorAlert(`Não consegui interpretar ${invalidDates.length} data(s) do CSV. Use o formato DD/MM/AAAA ou AAAA-MM-DD.`);
-      return;
-    }
-
-    document.getElementById('previewWrap').style.display='block';
-    document.getElementById('previewBody').innerHTML = pendingImport.map(r=>`<tr>
-      <td>${r.numero_pedido}</td>
-      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.descricao}</td>
-      <td>${r.fornecedor}</td>
-      <td>${r.data_lancamento_raw || r.data_lancamento}</td>
-      <td><span class="pill ${r.tipo==='realizado'?'pill-green':'pill-yellow'}">${r.tipo}</span></td>
-      <td style="font-weight:600">${fmt(r.valor)}</td>
-      <td>${autoCategNome(r.descricao)}</td>
-    </tr>`).join('');
-  };
-  reader.readAsText(file);
-}
-
-async function confirmImport() {
-  if(!pendingImport.length){ alert('Nenhum registro para importar.'); return; }
-  const totalRegistros = pendingImport.length;
-  const payload = pendingImport.map(({ data_lancamento_raw, ...row }) => row);
-  setLoading(`Salvando ${totalRegistros} registros no Supabase...`);
-  const { error } = await db.from('lancamentos').insert(payload);
-  hideLoading();
-  if(error){
-    const hint = error.message && error.message.toLowerCase().includes('row-level security')
-      ? ' Verifique a policy de INSERT da tabela lancamentos no Supabase.'
-      : '';
-    showErrorAlert('Erro ao importar: '+error.message + hint);
-    return;
-  }
-  document.getElementById('importCard').style.display='none';
-  document.getElementById('previewWrap').style.display='none';
-  document.getElementById('fileIn').value='';
-  pendingImport=[];
-  showSuccessAlert(`âœ… ${totalRegistros} registros importados com sucesso! Atualizando dashboard...`);
-  setTimeout(()=>loadData(), 1000);
-}
 </script>
 </body>
 </html>
