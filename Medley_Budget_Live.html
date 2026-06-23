@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Medley — Budget vs Realizado | Logística</title>
+<title>Medley â€” Budget vs Realizado | LogÃ­stica</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -219,16 +219,16 @@ tbody td{padding:12px 16px;}
     <div class="logo-sub">Budget Control</div>
   </div>
   <div class="sidebar-section">Principal</div>
-  <div class="nav-item active"><span class="icon">📊</span> Dashboard</div>
-  <div class="nav-item" onclick="toggleImport()"><span class="icon">⬆</span> Importar SAP</div>
-  <div class="nav-item" onclick="loadLancamentos()"><span class="icon">📋</span> Lançamentos</div>
-  <div class="nav-item"><span class="icon">🎯</span> Gestão de Budget</div>
-  <div class="sidebar-section">Relatórios</div>
-  <div class="nav-item" onclick="openReport()"><span class="icon">📄</span> Relatório Executivo</div>
-  <div class="nav-item"><span class="icon">🚨</span> Análise de Estouro</div>
+  <div class="nav-item active"><span class="icon">ðŸ“Š</span> Dashboard</div>
+  <div class="nav-item" onclick="toggleImport()"><span class="icon">â¬†</span> Importar SAP</div>
+  <div class="nav-item" onclick="loadLancamentos()"><span class="icon">ðŸ“‹</span> LanÃ§amentos</div>
+  <div class="nav-item"><span class="icon">ðŸŽ¯</span> GestÃ£o de Budget</div>
+  <div class="sidebar-section">RelatÃ³rios</div>
+  <div class="nav-item" onclick="openReport()"><span class="icon">ðŸ“„</span> RelatÃ³rio Executivo</div>
+  <div class="nav-item"><span class="icon">ðŸš¨</span> AnÃ¡lise de Estouro</div>
   <div class="sidebar-section">Config.</div>
-  <div class="nav-item"><span class="icon">⚙</span> Categorias</div>
-  <div class="nav-item"><span class="icon">👥</span> Usuários</div>
+  <div class="nav-item"><span class="icon">âš™</span> Categorias</div>
+  <div class="nav-item"><span class="icon">ðŸ‘¥</span> UsuÃ¡rios</div>
   <div class="sidebar-bottom" id="lastSync">Sincronizando...</div>
 </aside>
 
@@ -237,12 +237,12 @@ tbody td{padding:12px 16px;}
 <header class="topbar">
   <div>
     <div class="topbar-title">Dashboard de Budget</div>
-    <div class="topbar-breadcrumb" id="topbarSub">Logística · Carregando...</div>
+    <div class="topbar-breadcrumb" id="topbarSub">LogÃ­stica Â· Carregando...</div>
   </div>
   <div class="topbar-right">
-    <button class="btn btn-ghost" onclick="refreshData()">🔄 Atualizar</button>
-    <button class="btn btn-ghost" onclick="toggleImport()">⬆ Importar SAP</button>
-    <button class="btn btn-gold" onclick="openReport()">📄 Relatório Executivo</button>
+    <button class="btn btn-ghost" onclick="refreshData()">ðŸ”„ Atualizar</button>
+    <button class="btn btn-ghost" onclick="toggleImport()">â¬† Importar SAP</button>
+    <button class="btn btn-gold" onclick="openReport()">ðŸ“„ RelatÃ³rio Executivo</button>
     <div class="avatar">GL</div>
   </div>
 </header>
@@ -263,11 +263,11 @@ tbody td{padding:12px 16px;}
     </div>
     <div class="filter-sep"></div>
     <div class="filter-group">
-      <span class="filter-label">Período</span>
+      <span class="filter-label">PerÃ­odo</span>
       <select class="filter-select" id="filterMes" onchange="refreshData()">
         <option value="0">Acumulado (ano todo)</option>
         <option value="1">Janeiro</option><option value="2">Fevereiro</option>
-        <option value="3">Março</option><option value="4">Abril</option>
+        <option value="3">MarÃ§o</option><option value="4">Abril</option>
         <option value="5">Maio</option><option value="6">Junho</option>
         <option value="7">Julho</option><option value="8">Agosto</option>
         <option value="9">Setembro</option><option value="10">Outubro</option>
@@ -286,29 +286,29 @@ tbody td{padding:12px 16px;}
   <!-- KPI CARDS -->
   <div class="kpi-grid">
     <div class="kpi">
-      <div class="kpi-icon">🎯</div>
+      <div class="kpi-icon">ðŸŽ¯</div>
       <div class="kpi-label">Budget Total</div>
-      <div class="kpi-value" id="kpiBudget">—</div>
+      <div class="kpi-value" id="kpiBudget">â€”</div>
       <div class="kpi-sub" id="kpiBudgetSub">Carregando...</div>
     </div>
     <div class="kpi teal">
-      <div class="kpi-icon">✅</div>
+      <div class="kpi-icon">âœ…</div>
       <div class="kpi-label">Realizado</div>
-      <div class="kpi-value" id="kpiRealizado">—</div>
+      <div class="kpi-value" id="kpiRealizado">â€”</div>
       <div class="kpi-sub" id="kpiRealizadoSub">Carregando...</div>
       <span class="kpi-tag tag-green" id="kpiRealizadoTag"></span>
     </div>
     <div class="kpi gold">
-      <div class="kpi-icon">📌</div>
+      <div class="kpi-icon">ðŸ“Œ</div>
       <div class="kpi-label">Comprometido</div>
-      <div class="kpi-value" id="kpiComp">—</div>
-      <div class="kpi-sub">Realizado + Provisões</div>
+      <div class="kpi-value" id="kpiComp">â€”</div>
+      <div class="kpi-sub">Realizado + ProvisÃµes</div>
       <span class="kpi-tag tag-gold" id="kpiCompTag"></span>
     </div>
     <div class="kpi red">
-      <div class="kpi-icon">⚠️</div>
+      <div class="kpi-icon">âš ï¸</div>
       <div class="kpi-label">Categorias em Alerta</div>
-      <div class="kpi-value" id="kpiAlertas">—</div>
+      <div class="kpi-value" id="kpiAlertas">â€”</div>
       <div class="kpi-sub" id="kpiAlertasSub">Carregando...</div>
       <span class="kpi-tag tag-red" id="kpiAlertasTag"></span>
     </div>
@@ -318,7 +318,7 @@ tbody td{padding:12px 16px;}
   <div class="grid-2">
     <div class="card">
       <div class="card-header">
-        <div class="card-title"><div class="accent"></div>Budget vs Realizado vs Comprometido — Mensal</div>
+        <div class="card-title"><div class="accent"></div>Budget vs Realizado vs Comprometido â€” Mensal</div>
       </div>
       <div class="card-body">
         <div class="chart-legend">
@@ -333,7 +333,7 @@ tbody td{padding:12px 16px;}
     </div>
     <div class="card">
       <div class="card-header">
-        <div class="card-title"><div class="accent" style="background:var(--gold)"></div>Distribuição por Categoria</div>
+        <div class="card-title"><div class="accent" style="background:var(--gold)"></div>DistribuiÃ§Ã£o por Categoria</div>
       </div>
       <div class="card-body">
         <div class="chart-box-pie">
@@ -341,9 +341,9 @@ tbody td{padding:12px 16px;}
         </div>
       </div>
       <div class="summary-row">
-        <div class="summary-item"><div class="summary-value" id="sumBudget">—</div><div class="summary-label">Budget</div></div>
-        <div class="summary-item"><div class="summary-value" id="sumComp">—</div><div class="summary-label">Comprometido</div></div>
-        <div class="summary-item"><div class="summary-value" id="sumSaldo" style="color:var(--green-deep)">—</div><div class="summary-label">Saldo</div></div>
+        <div class="summary-item"><div class="summary-value" id="sumBudget">â€”</div><div class="summary-label">Budget</div></div>
+        <div class="summary-item"><div class="summary-value" id="sumComp">â€”</div><div class="summary-label">Comprometido</div></div>
+        <div class="summary-item"><div class="summary-value" id="sumSaldo" style="color:var(--green-deep)">â€”</div><div class="summary-label">Saldo</div></div>
       </div>
     </div>
   </div>
@@ -351,7 +351,7 @@ tbody td{padding:12px 16px;}
   <!-- MONTH STRIP -->
   <div class="card" style="margin-bottom:24px">
     <div class="card-header" style="margin-bottom:14px">
-      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>Navegação Mensal</div>
+      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>NavegaÃ§Ã£o Mensal</div>
     </div>
     <div class="month-strip" id="monthStrip"></div>
   </div>
@@ -361,14 +361,14 @@ tbody td{padding:12px 16px;}
     <div class="card-header" style="margin-bottom:0">
       <div class="card-title"><div class="accent" style="background:var(--yellow)"></div>Detalhamento por Categoria</div>
       <div class="card-actions">
-        <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="exportCSV()">⬇ CSV</button>
+        <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="exportCSV()">â¬‡ CSV</button>
       </div>
     </div>
     <div class="card-body" style="padding-top:16px">
       <div class="table-wrap"><table>
         <thead><tr>
           <th>Categoria</th><th>Budget</th><th>Realizado</th>
-          <th>Provisão</th><th>Comprometido</th><th>Saldo</th><th>% Utilizado</th><th>Status</th>
+          <th>ProvisÃ£o</th><th>Comprometido</th><th>Saldo</th><th>% Utilizado</th><th>Status</th>
         </tr></thead>
         <tbody id="tabelaDetalhe"></tbody>
       </table></div>
@@ -378,15 +378,15 @@ tbody td{padding:12px 16px;}
   <!-- LANCAMENTOS TABLE -->
   <div class="card" id="lancamentosCard" style="display:none;margin-bottom:24px">
     <div class="card-header" style="margin-bottom:0">
-      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>Lançamentos do SAP</div>
+      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>LanÃ§amentos do SAP</div>
       <div class="card-actions">
-        <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="document.getElementById('lancamentosCard').style.display='none'">✕</button>
+        <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="document.getElementById('lancamentosCard').style.display='none'">âœ•</button>
       </div>
     </div>
     <div class="card-body" style="padding-top:16px">
       <div class="table-wrap"><table>
         <thead><tr>
-          <th>Pedido</th><th>Descrição</th><th>Fornecedor</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Categoria</th>
+          <th>Pedido</th><th>DescriÃ§Ã£o</th><th>Fornecedor</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Categoria</th>
         </tr></thead>
         <tbody id="tabelaLancamentos"></tbody>
       </table></div>
@@ -398,29 +398,29 @@ tbody td{padding:12px 16px;}
     <div class="card-header" style="margin-bottom:0">
       <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>Importar Dados do SAP</div>
       <div class="card-actions">
-        <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="toggleImport()">✕ Fechar</button>
+        <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="toggleImport()">âœ• Fechar</button>
       </div>
     </div>
     <div class="tabs" style="margin-top:12px">
-      <div class="tab active">📄 Upload CSV / XLSX</div>
+      <div class="tab active">ðŸ“„ Upload CSV / XLSX</div>
     </div>
     <div class="import-drop" onclick="document.getElementById('fileIn').click()">
-      <div class="import-drop-icon">📂</div>
+      <div class="import-drop-icon">ðŸ“‚</div>
       <div class="import-drop-title">Arraste o arquivo aqui ou clique para selecionar</div>
-      <div class="import-drop-sub">Aceita .CSV exportado do SAP · Colunas: numero_pedido, descricao, fornecedor, data_lancamento, valor, tipo</div>
+      <div class="import-drop-sub">Aceita .CSV exportado do SAP Â· Colunas: numero_pedido, descricao, fornecedor, data_lancamento, valor, tipo</div>
       <input type="file" id="fileIn" accept=".csv" style="display:none" onchange="handleCSV(this)">
     </div>
     <div style="margin:0 22px 20px;padding:14px 16px;background:var(--green-pale);border-radius:8px;font-size:12px;color:var(--text-mid)">
-      <strong style="color:var(--green-deep)">📌 Colunas esperadas no CSV:</strong> numero_pedido · descricao · fornecedor · data_lancamento (DD/MM/AAAA) · valor · tipo (realizado ou provisao) · categoria_id (opcional)
+      <strong style="color:var(--green-deep)">ðŸ“Œ Colunas esperadas no CSV:</strong> numero_pedido Â· descricao Â· fornecedor Â· data_lancamento (DD/MM/AAAA) Â· valor Â· tipo (realizado ou provisao) Â· categoria_id (opcional)
     </div>
     <div id="previewWrap" style="display:none;padding:0 22px 22px">
-      <div style="font-size:13px;font-weight:700;color:var(--green-deep);margin-bottom:12px">Pré-visualização — revise antes de importar:</div>
+      <div style="font-size:13px;font-weight:700;color:var(--green-deep);margin-bottom:12px">PrÃ©-visualizaÃ§Ã£o â€” revise antes de importar:</div>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pedido</th><th>Descrição</th><th>Fornecedor</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Categoria</th></tr></thead>
+        <thead><tr><th>Pedido</th><th>DescriÃ§Ã£o</th><th>Fornecedor</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Categoria</th></tr></thead>
         <tbody id="previewBody"></tbody>
       </table></div>
       <div style="margin-top:16px;display:flex;gap:10px">
-        <button class="btn btn-primary" onclick="confirmImport()">✅ Confirmar e Salvar no Banco</button>
+        <button class="btn btn-primary" onclick="confirmImport()">âœ… Confirmar e Salvar no Banco</button>
         <button class="btn btn-ghost" onclick="document.getElementById('previewWrap').style.display='none'">Cancelar</button>
       </div>
     </div>
@@ -436,51 +436,51 @@ tbody td{padding:12px 16px;}
     <div class="report-header">
       <div class="report-logo">Medley<span class="dot">.</span></div>
       <div>
-        <div class="report-title">Relatório Executivo de Budget</div>
-        <div class="report-subtitle" id="reportSubtitle">Logística · Carregando...</div>
+        <div class="report-title">RelatÃ³rio Executivo de Budget</div>
+        <div class="report-subtitle" id="reportSubtitle">LogÃ­stica Â· Carregando...</div>
       </div>
     </div>
     <div class="report-meta">
-      <div class="report-meta-item"><div class="report-meta-label">Budget</div><div class="report-meta-value" id="rBudget">—</div></div>
-      <div class="report-meta-item"><div class="report-meta-label">Realizado</div><div class="report-meta-value green" id="rReal">—</div></div>
-      <div class="report-meta-item"><div class="report-meta-label">Comprometido</div><div class="report-meta-value" style="color:var(--yellow)" id="rComp">—</div></div>
-      <div class="report-meta-item"><div class="report-meta-label">Saldo</div><div class="report-meta-value green" id="rSaldo">—</div></div>
+      <div class="report-meta-item"><div class="report-meta-label">Budget</div><div class="report-meta-value" id="rBudget">â€”</div></div>
+      <div class="report-meta-item"><div class="report-meta-label">Realizado</div><div class="report-meta-value green" id="rReal">â€”</div></div>
+      <div class="report-meta-item"><div class="report-meta-label">Comprometido</div><div class="report-meta-value" style="color:var(--yellow)" id="rComp">â€”</div></div>
+      <div class="report-meta-item"><div class="report-meta-label">Saldo</div><div class="report-meta-value green" id="rSaldo">â€”</div></div>
     </div>
     <div class="report-body">
-      <div class="report-section-title">📊 Resumo por Categoria</div>
+      <div class="report-section-title">ðŸ“Š Resumo por Categoria</div>
       <table class="report-table">
-        <thead><tr><th>Categoria</th><th>Budget</th><th>Realizado</th><th>Provisão</th><th>Comprometido</th><th>Saldo</th><th>%</th><th>Status</th></tr></thead>
+        <thead><tr><th>Categoria</th><th>Budget</th><th>Realizado</th><th>ProvisÃ£o</th><th>Comprometido</th><th>Saldo</th><th>%</th><th>Status</th></tr></thead>
         <tbody id="reportTableBody"></tbody>
         <tfoot><tr id="reportTotals"></tr></tfoot>
       </table>
-      <div class="report-section-title">🚨 Categorias em Alerta</div>
+      <div class="report-section-title">ðŸš¨ Categorias em Alerta</div>
       <table class="report-table">
         <thead><tr><th>Categoria</th><th>Status</th><th>% Utilizado</th><th>Saldo / Estouro</th></tr></thead>
         <tbody id="reportAlertBody"></tbody>
       </table>
       <div style="margin-top:20px;padding:14px 16px;background:var(--green-pale);border-radius:8px;font-size:11px;color:var(--text-mid)">
-        <strong style="color:var(--green-deep)">Nota:</strong> Relatório gerado automaticamente pelo sistema Budget Control Medley com dados do Supabase. Gerado em <span id="reportDate"></span>.
+        <strong style="color:var(--green-deep)">Nota:</strong> RelatÃ³rio gerado automaticamente pelo sistema Budget Control Medley com dados do Supabase. Gerado em <span id="reportDate"></span>.
       </div>
     </div>
     <div class="report-actions">
-      <button class="btn btn-primary" onclick="window.print()">🖨 Imprimir / Salvar PDF</button>
-      <button class="btn btn-ghost" onclick="closeReport()">✕ Fechar</button>
+      <button class="btn btn-primary" onclick="window.print()">ðŸ–¨ Imprimir / Salvar PDF</button>
+      <button class="btn btn-ghost" onclick="closeReport()">âœ• Fechar</button>
     </div>
     <div class="report-footer">
-      <div class="report-footer-text">Medley — Controle Orçamentário Logístico · Documento interno · Confidencial</div>
+      <div class="report-footer-text">Medley â€” Controle OrÃ§amentÃ¡rio LogÃ­stico Â· Documento interno Â· Confidencial</div>
       <div class="report-footer-text" id="reportFooterDate"></div>
     </div>
   </div>
 </div>
 
 <script>
-// ── SUPABASE CONFIG ────────────────────────────────────────────
+// â”€â”€ SUPABASE CONFIG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const SUPABASE_URL = 'https://nlrzmvncwlbzuxlwnpld.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_dlJ-y9birCNkFBYaIfA_qw_KEPv-G54';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ── STATE ──────────────────────────────────────────────────────
+// â”€â”€ STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let chartMensal = null, chartPie = null;
 let allData = [], categorias = [];
 let pendingImport = [];
@@ -497,6 +497,10 @@ function fmtShort(v) {
   return fmt(v);
 }
 function today() { return new Date().toLocaleDateString('pt-BR'); }
+function currentYearMonth() {
+  const now = new Date();
+  return { year: now.getFullYear(), month: now.getMonth() + 1 };
+}
 function parseDateToIso(value) {
   const raw = (value || '').trim();
   if (!raw) return null;
@@ -536,8 +540,25 @@ function splitCSVLine(line, delimiter) {
   result.push(current);
   return result.map(v => v.trim());
 }
+function normalizeMonthlyData(rows, ano) {
+  const numericYear = parseInt(ano, 10);
+  const { year: currentYear, month: currentMonth } = currentYearMonth();
+  return (rows || []).filter(r => {
+    if (!r || !r.mes) return false;
+    if (numericYear === currentYear && r.mes > currentMonth) return false;
+    return (r.realizado || 0) > 0 || (r.provisao || 0) > 0 || (r.comprometido || 0) > 0 || (r.budget || 0) > 0;
+  });
+}
+function resetDashboardState(message) {
+  allData = [];
+  updateKPIs([], []);
+  updateCharts([], []);
+  updateTable([]);
+  updateMonthStrip([]);
+  if (message) showErrorAlert(message);
+}
 
-// ── LOAD DATA ──────────────────────────────────────────────────
+// â”€â”€ LOAD DATA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadData() {
   const ano = document.getElementById('filterAno').value;
   const mes = parseInt(document.getElementById('filterMes').value);
@@ -556,21 +577,20 @@ async function loadData() {
     if(cat) qm = qm.eq('categoria', cat);
     const { data: monthly, error: e2 } = await qm;
     if(e2) throw e2;
+    const monthlyData = normalizeMonthlyData(monthly, ano);
 
     // Load alertas
     const { data: alertas } = await db.from('vw_alertas').select('*').eq('ano', ano);
 
     hideLoading();
     updateKPIs(allData, alertas||[]);
-    updateCharts(monthly||[], allData);
+    updateCharts(monthlyData, allData);
     updateTable(allData);
-    updateMonthStrip(monthly||[]);
+    updateMonthStrip(monthlyData);
     updateTopbar(ano, mes);
-    showSuccessAlert('✅ Dados carregados do Supabase com sucesso!');
   } catch(err) {
     hideLoading();
-    showErrorAlert('Erro ao carregar dados: ' + err.message + '. Usando dados de demonstração.');
-    loadDemoData();
+    resetDashboardState('Erro ao carregar dados reais: ' + err.message);
   }
 }
 
@@ -606,19 +626,19 @@ async function loadLancamentos() {
     .order('data_lancamento', {ascending:false})
     .limit(50);
   const tb = document.getElementById('tabelaLancamentos');
-  if(error || !data?.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:20px">Nenhum lançamento encontrado</td></tr>'; return; }
+  if(error || !data?.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:20px">Nenhum lanÃ§amento encontrado</td></tr>'; return; }
   tb.innerHTML = data.map(r => `<tr>
-    <td>${r.numero_pedido||'—'}</td>
-    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.descricao||''}">${r.descricao||'—'}</td>
-    <td>${r.fornecedor||'—'}</td>
-    <td>${r.data_lancamento ? new Date(r.data_lancamento).toLocaleDateString('pt-BR') : '—'}</td>
+    <td>${r.numero_pedido||'â€”'}</td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.descricao||''}">${r.descricao||'â€”'}</td>
+    <td>${r.fornecedor||'â€”'}</td>
+    <td>${r.data_lancamento ? new Date(r.data_lancamento).toLocaleDateString('pt-BR') : 'â€”'}</td>
     <td><span class="pill ${r.tipo==='realizado'?'pill-green':'pill-yellow'}">${r.tipo}</span></td>
     <td style="font-weight:600">${fmt(r.valor)}</td>
-    <td>${r.categorias?.nome||'—'}</td>
+    <td>${r.categorias?.nome||'â€”'}</td>
   </tr>`).join('');
 }
 
-// ── UPDATE UI ──────────────────────────────────────────────────
+// â”€â”€ UPDATE UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function updateKPIs(data, alertas) {
   const totB = data.reduce((s,r)=>s+(r.budget_anual||0),0);
   const totR = data.reduce((s,r)=>s+(r.realizado_acumulado||0),0);
@@ -632,11 +652,11 @@ function updateKPIs(data, alertas) {
   document.getElementById('kpiBudgetSub').textContent = `Planejado ${document.getElementById('filterAno').value}`;
   document.getElementById('kpiRealizado').textContent = fmtShort(totR);
   document.getElementById('kpiRealizadoSub').textContent = 'Notas fiscais registradas';
-  document.getElementById('kpiRealizadoTag').textContent = `↑ ${pctR}% do budget`;
+  document.getElementById('kpiRealizadoTag').textContent = `â†‘ ${pctR}% do budget`;
   document.getElementById('kpiComp').textContent = fmtShort(totC);
   document.getElementById('kpiCompTag').textContent = `${pctC}% do budget`;
-  document.getElementById('kpiAlertas').textContent = nAlertas ? `${nAlertas} ${nAlertas===1?'alerta':'alertas'}` : 'Tudo OK ✓';
-  document.getElementById('kpiAlertasSub').textContent = nAlertas ? alertas.slice(0,2).map(a=>a.categoria).join(' · ') : 'Nenhum estouro detectado';
+  document.getElementById('kpiAlertas').textContent = nAlertas ? `${nAlertas} ${nAlertas===1?'alerta':'alertas'}` : 'Tudo OK âœ“';
+  document.getElementById('kpiAlertasSub').textContent = nAlertas ? alertas.slice(0,2).map(a=>a.categoria).join(' Â· ') : 'Nenhum estouro detectado';
   if(!nAlertas) document.querySelector('.kpi.red').querySelector('.kpi-value').style.color='var(--green-deep)';
 
   // Summary row
@@ -664,6 +684,12 @@ function updateCharts(monthly, catData) {
   const bSlice = mBudget.slice(0,end), rSlice = mReal.slice(0,end), cSlice = mComp.slice(0,end);
 
   if(chartMensal) chartMensal.destroy();
+  if(!labels.length || (!bSlice.some(Boolean) && !rSlice.some(Boolean) && !cSlice.some(Boolean))) {
+    chartMensal = null;
+    const monthlyCanvas = document.getElementById('chartMensal');
+    const monthlyCtx = monthlyCanvas.getContext('2d');
+    monthlyCtx.clearRect(0, 0, monthlyCanvas.width, monthlyCanvas.height);
+  } else {
   chartMensal = new Chart(document.getElementById('chartMensal').getContext('2d'),{
     type:'bar',
     data:{ labels, datasets:[
@@ -703,6 +729,7 @@ function updateCharts(monthly, catData) {
       }
     ]},
     options:{
+      animation:false,
       responsive:true,
       maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
@@ -720,16 +747,24 @@ function updateCharts(monthly, catData) {
       }
     }
   });
+  }
 
   // Pie
   const cats = catData.filter(c=>c.comprometido>0);
   if(chartPie) chartPie.destroy();
   const CORES = ['#006B5B','#009B8D','#00C4B3','#F0A500','#5DB8AA','#C8E6E3','#95A5A6'];
+  if(!cats.length) {
+    chartPie = null;
+    const pieCanvas = document.getElementById('chartPie');
+    const pieCtx = pieCanvas.getContext('2d');
+    pieCtx.clearRect(0, 0, pieCanvas.width, pieCanvas.height);
+    return;
+  }
   chartPie = new Chart(document.getElementById('chartPie').getContext('2d'),{
     type:'doughnut',
     data:{labels:cats.map(c=>c.categoria),
           datasets:[{data:cats.map(c=>c.comprometido),backgroundColor:cats.map((_,i)=>CORES[i%CORES.length]),borderWidth:2,borderColor:'#fff'}]},
-    options:{responsive:true,maintainAspectRatio:false,
+    options:{animation:false,responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:11,padding:9,color:'#4A6461'}}}}
   });
 }
@@ -743,7 +778,7 @@ function updateTable(data) {
     const comp=c.comprometido||0, saldo=c.saldo_anual||0, pct=c.pct_utilizado||0;
     totB+=c.budget_anual||0; totR+=c.realizado_acumulado||0; totP+=c.provisao_acumulada||0; totC+=comp;
     const over=saldo<0, warn=pct>=80&&pct<100;
-    const pillHtml=over?'<span class="pill pill-red">🔴 Estouro</span>':warn?'<span class="pill pill-yellow">🟡 Atenção</span>':pct===0?'<span class="pill pill-gray">⚪ Sem dados</span>':'<span class="pill pill-green">🟢 OK</span>';
+    const pillHtml=over?'<span class="pill pill-red">ðŸ”´ Estouro</span>':warn?'<span class="pill pill-yellow">ðŸŸ¡ AtenÃ§Ã£o</span>':pct===0?'<span class="pill pill-gray">âšª Sem dados</span>':'<span class="pill pill-green">ðŸŸ¢ OK</span>';
     const barCol=over?'#D63031':warn?'#F39C12':'#009B8D';
     return `<tr>
       <td class="td-cat" style="border-left:3px solid ${CORES[i%CORES.length]}">&nbsp;${c.categoria}</td>
@@ -751,7 +786,7 @@ function updateTable(data) {
       <td>${fmt(c.realizado_acumulado)}</td>
       <td style="color:var(--green-mid)">${fmt(c.provisao_acumulada)}</td>
       <td style="font-weight:700">${fmt(comp)}</td>
-      <td class="${saldo>=0?'saldo-pos':'saldo-neg'}">${saldo<0?'▲ ':''}${fmt(saldo)}</td>
+      <td class="${saldo>=0?'saldo-pos':'saldo-neg'}">${saldo<0?'â–² ':''}${fmt(saldo)}</td>
       <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(pct,100)}%;background:${barCol}"></div></div><div class="bar-pct" style="color:${barCol}">${pct}%</div></div></td>
       <td>${pillHtml}</td>
     </tr>`;
@@ -762,7 +797,7 @@ function updateTable(data) {
     <td style="color:var(--green-mid)">${fmt(totP)}</td><td>${fmt(totC)}</td>
     <td class="${totS>=0?'saldo-pos':'saldo-neg'}">${fmt(totS)}</td>
     <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(totPct,100)}%;background:#009B8D"></div></div><div class="bar-pct" style="color:#009B8D">${totPct}%</div></div></td>
-    <td>—</td>
+    <td>â€”</td>
   </tr>`;
 }
 
@@ -779,18 +814,18 @@ function updateMonthStrip(monthly) {
     if(!d||d.budget===0) return `<div class="month-chip future" onclick="selectMonth(${mes})">${m}</div>`;
     const pct=d.budget?Math.round(d.comp/d.budget*100):0;
     const cls=pct>=100?'over':pct>=80?'warn':'';
-    const icon=pct>=100?'🔴':pct>=80?'⚠':'✓';
+    const icon=pct>=100?'ðŸ”´':pct>=80?'âš ':'âœ“';
     return `<div class="month-chip ${cls}" onclick="selectMonth(${mes})">${m} ${icon}</div>`;
   }).join('');
 }
 
 function updateTopbar(ano, mes) {
   const label = mes===0?`Acumulado ${ano}`:`${MESES[mes-1]}/${ano}`;
-  document.getElementById('topbarSub').textContent = `Logística · ${label}`;
+  document.getElementById('topbarSub').textContent = `LogÃ­stica Â· ${label}`;
   document.getElementById('lastSync').textContent = `Sync: ${today()}`;
 }
 
-// ── INTERACTIONS ───────────────────────────────────────────────
+// â”€â”€ INTERACTIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function selectMonth(mes) {
   document.getElementById('filterMes').value = mes;
   document.querySelectorAll('.month-chip').forEach((c,i)=>{
@@ -810,13 +845,13 @@ function toggleImport() {
   if(c.style.display==='block') c.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-// ── CSV IMPORT ─────────────────────────────────────────────────
+// â”€â”€ CSV IMPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const RULES=[
   {id:1,cat:'Warehouse DHL',keys:['dhl','warehouse']},
   {id:2,cat:'Frete Nacional',keys:['frete','transporte','cte','entrega']},
   {id:3,cat:'Frete Internacional',keys:['import','export','aduana','freight']},
   {id:4,cat:'Armazenagem',keys:['armazenagem','storage','pallet']},
-  {id:5,cat:'Handling',keys:['handling','movimentação','crossdocking']},
+  {id:5,cat:'Handling',keys:['handling','movimentaÃ§Ã£o','crossdocking']},
 ];
 function autoCategId(desc){
   const d=(desc||'').toLowerCase();
@@ -906,9 +941,9 @@ async function confirmImport() {
   showSuccessAlert(totalRegistros + ' registros importados com sucesso! Atualizando dashboard...');
   setTimeout(()=>loadData(), 1000);
 }
-// ── EXPORT ────────────────────────────────────────────────────
+// â”€â”€ EXPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function exportCSV() {
-  const rows = [['Categoria','Budget Anual','Realizado','Provisão','Comprometido','Saldo','% Utilizado','Status']];
+  const rows = [['Categoria','Budget Anual','Realizado','ProvisÃ£o','Comprometido','Saldo','% Utilizado','Status']];
   allData.forEach(c=>{
     const s=c.saldo_anual||0;
     rows.push([c.categoria,c.budget_anual,c.realizado_acumulado,c.provisao_acumulada,c.comprometido,s,c.pct_utilizado+'%',c.status]);
@@ -920,10 +955,10 @@ function exportCSV() {
   a.click();
 }
 
-// ── REPORT ────────────────────────────────────────────────────
+// â”€â”€ REPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openReport() {
   const ano=document.getElementById('filterAno').value;
-  document.getElementById('reportSubtitle').textContent=`Logística · Acumulado ${ano} · Emitido em ${today()}`;
+  document.getElementById('reportSubtitle').textContent=`LogÃ­stica Â· Acumulado ${ano} Â· Emitido em ${today()}`;
   document.getElementById('reportDate').textContent=today();
   document.getElementById('reportFooterDate').textContent=`Gerado em ${today()}`;
   let totB=0,totR=0,totP=0,totC=0;
@@ -931,18 +966,18 @@ function openReport() {
   document.getElementById('reportTableBody').innerHTML = allData.map((c,i)=>{
     const comp=c.comprometido||0,saldo=c.saldo_anual||0,pct=c.pct_utilizado||0;
     totB+=c.budget_anual||0;totR+=c.realizado_acumulado||0;totP+=c.provisao_acumulada||0;totC+=comp;
-    const status=saldo<0?'<span class="pill pill-red">Estouro</span>':pct>=80?'<span class="pill pill-yellow">Atenção</span>':'<span class="pill pill-green">OK</span>';
+    const status=saldo<0?'<span class="pill pill-red">Estouro</span>':pct>=80?'<span class="pill pill-yellow">AtenÃ§Ã£o</span>':'<span class="pill pill-green">OK</span>';
     return `<tr>
       <td><strong>${c.categoria}</strong></td>
       <td>${fmt(c.budget_anual)}</td><td>${fmt(c.realizado_acumulado)}</td>
       <td>${fmt(c.provisao_acumulada)}</td><td><strong>${fmt(comp)}</strong></td>
-      <td style="color:${saldo>=0?'#006B5B':'#D63031'};font-weight:700">${saldo<0?'▲ ':''}${fmt(saldo)}</td>
+      <td style="color:${saldo>=0?'#006B5B':'#D63031'};font-weight:700">${saldo<0?'â–² ':''}${fmt(saldo)}</td>
       <td style="font-weight:700;color:${pct>=100?'#D63031':pct>=80?'#F39C12':'#006B5B'}">${pct}%</td>
       <td>${status}</td>
     </tr>`;
   }).join('');
   const totS=totB-totC;
-  document.getElementById('reportTotals').innerHTML=`<td><strong>TOTAL</strong></td><td><strong>${fmt(totB)}</strong></td><td><strong>${fmt(totR)}</strong></td><td><strong>${fmt(totP)}</strong></td><td><strong>${fmt(totC)}</strong></td><td style="color:${totS>=0?'#006B5B':'#D63031'}"><strong>${fmt(totS)}</strong></td><td><strong>${totB?Math.round(totC/totB*100):0}%</strong></td><td>—</td>`;
+  document.getElementById('reportTotals').innerHTML=`<td><strong>TOTAL</strong></td><td><strong>${fmt(totB)}</strong></td><td><strong>${fmt(totR)}</strong></td><td><strong>${fmt(totP)}</strong></td><td><strong>${fmt(totC)}</strong></td><td style="color:${totS>=0?'#006B5B':'#D63031'}"><strong>${fmt(totS)}</strong></td><td><strong>${totB?Math.round(totC/totB*100):0}%</strong></td><td>â€”</td>`;
   document.getElementById('rBudget').textContent=fmtShort(totB);
   document.getElementById('rReal').textContent=fmtShort(totR);
   document.getElementById('rComp').textContent=fmtShort(totC);
@@ -951,29 +986,29 @@ function openReport() {
   const alertas=allData.filter(c=>(c.pct_utilizado||0)>=80);
   document.getElementById('reportAlertBody').innerHTML=alertas.length?alertas.map(c=>`<tr>
     <td><strong>${c.categoria}</strong></td>
-    <td>${(c.saldo_anual||0)<0?'<span class="pill pill-red">Estouro</span>':'<span class="pill pill-yellow">Atenção</span>'}</td>
+    <td>${(c.saldo_anual||0)<0?'<span class="pill pill-red">Estouro</span>':'<span class="pill pill-yellow">AtenÃ§Ã£o</span>'}</td>
     <td style="font-weight:700;color:${(c.pct_utilizado||0)>=100?'#D63031':'#F39C12'}">${c.pct_utilizado}%</td>
-    <td style="font-weight:700;color:${(c.saldo_anual||0)>=0?'#006B5B':'#D63031'}">${(c.saldo_anual||0)<0?'▲ ':''}${fmt(c.saldo_anual)}</td>
-  </tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:#888;padding:16px">Nenhuma categoria em alerta 🎉</td></tr>';
+    <td style="font-weight:700;color:${(c.saldo_anual||0)>=0?'#006B5B':'#D63031'}">${(c.saldo_anual||0)<0?'â–² ':''}${fmt(c.saldo_anual)}</td>
+  </tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:#888;padding:16px">Nenhuma categoria em alerta ðŸŽ‰</td></tr>';
   document.getElementById('reportView').style.display='block';
   document.body.style.overflow='hidden';
 }
 function closeReport(){document.getElementById('reportView').style.display='none';document.body.style.overflow='';}
 document.getElementById('reportView').addEventListener('click',function(e){if(e.target===this)closeReport();});
 
-// ── ALERTS ────────────────────────────────────────────────────
+// â”€â”€ ALERTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function showAlert(html, type='') {
-  document.getElementById('alertArea').innerHTML=`<div class="alert ${type}">${html}<div class="alert-close" onclick="this.parentElement.remove()">✕</div></div>`;
+  document.getElementById('alertArea').innerHTML=`<div class="alert ${type}">${html}<div class="alert-close" onclick="this.parentElement.remove()">âœ•</div></div>`;
   setTimeout(()=>{ const a=document.getElementById('alertArea'); if(a) a.innerHTML=''; },6000);
 }
-function showSuccessAlert(msg){showAlert(`<div class="alert-icon">✅</div><div class="alert-body"><div class="alert-title">${msg}</div></div>`,'alert-success');}
-function showErrorAlert(msg){showAlert(`<div class="alert-icon">⚠️</div><div class="alert-body"><div class="alert-title" style="color:#922B21">${msg}</div></div>`);}
+function showSuccessAlert(msg){showAlert(`<div class="alert-icon">âœ…</div><div class="alert-body"><div class="alert-title">${msg}</div></div>`,'alert-success');}
+function showErrorAlert(msg){showAlert(`<div class="alert-icon">âš ï¸</div><div class="alert-body"><div class="alert-title" style="color:#922B21">${msg}</div></div>`);}
 
-// ── LOADING ───────────────────────────────────────────────────
+// â”€â”€ LOADING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function setLoading(msg){document.getElementById('loadingText').textContent=msg;document.getElementById('loadingOverlay').style.display='flex';}
 function hideLoading(){document.getElementById('loadingOverlay').style.display='none';}
 
-// ── DEMO FALLBACK ─────────────────────────────────────────────
+// â”€â”€ DEMO FALLBACK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function loadDemoData() {
   const demo=[
     {categoria:'Warehouse DHL',budget_anual:960000,realizado_acumulado:612000,provisao_acumulada:86200,comprometido:698200,saldo_anual:261800,pct_utilizado:73,status:'OK'},
@@ -993,7 +1028,7 @@ function loadDemoData() {
   updateMonthStrip(demoMonthly);
 }
 
-// ── INIT ──────────────────────────────────────────────────────
+// â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 (async () => {
   await refreshData();
 })();
@@ -1001,3 +1036,4 @@ function loadDemoData() {
 </script>
 </body>
 </html>
+
