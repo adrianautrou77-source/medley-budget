@@ -1229,7 +1229,6 @@ function exportCSV() {
 function openReport() {
   const ano=document.getElementById('filterAno').value;
   document.getElementById('reportSubtitle').textContent=`Logistica | Acumulado ${ano} | Emitido em ${today()}`;
-  document.getElementById('reportDate').textContent=today();
   document.getElementById('reportFooterDate').textContent=`Gerado em ${today()}`;
   let totB=0,totR=0,totP=0,totC=0;
   const CORES=['#006B5B','#009B8D','#00C4B3','#F0A500','#5DB8AA','#C8E6E3'];
