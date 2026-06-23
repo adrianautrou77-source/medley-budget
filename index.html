@@ -43,7 +43,8 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--
 .nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:2px 8px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:500;color:rgba(255,255,255,.65);transition:all .15s;}
 .nav-item:hover{background:rgba(255,255,255,.08);color:white;}
 .nav-item.active{background:rgba(0,196,179,.18);color:white;}
-.nav-item .icon{font-size:16px;width:20px;text-align:center;}
+.nav-item .icon{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;letter-spacing:.3px;color:white;background:rgba(255,255,255,.12);flex-shrink:0;}
+.nav-item.active .icon{background:rgba(255,255,255,.18);}
 .sidebar-bottom{margin-top:auto;padding:16px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;color:rgba(255,255,255,.35);text-align:center;}
 /* CONTENT */
 .content{margin-left:220px;flex:1;display:flex;flex-direction:column;}
@@ -95,7 +96,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--
 .kpi.gold::before{background:var(--gold);}
 .kpi.red::before{background:var(--red);}
 .kpi.teal::before{background:var(--green-light);}
-.kpi-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;background:var(--green-pale);}
+.kpi-icon{min-width:52px;height:40px;padding:0 12px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;letter-spacing:.3px;margin-bottom:14px;background:var(--green-pale);}
 .kpi.gold .kpi-icon{background:var(--gold-light);}
 .kpi.red .kpi-icon{background:var(--red-light);}
 .kpi-label{font-size:11px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;}
@@ -228,16 +229,16 @@ tbody td{padding:12px 16px;}
     <div class="logo-sub">Budget Control</div>
   </div>
   <div class="sidebar-section">Principal</div>
-  <div class="nav-item active"><span class="icon">•</span> Dashboard</div>
-  <div class="nav-item" onclick="toggleImport()"><span class="icon">+</span> Importar SAP</div>
-  <div class="nav-item" onclick="loadLancamentos()"><span class="icon">•</span> Lancamentos</div>
-  <div class="nav-item"><span class="icon">•</span> Gestao de Budget</div>
+  <div class="nav-item active"><span class="icon">HOME</span> Dashboard</div>
+  <div class="nav-item" onclick="toggleImport()"><span class="icon">SAP</span> Importar SAP</div>
+  <div class="nav-item" onclick="loadLancamentos()"><span class="icon">LIST</span> Lancamentos</div>
+  <div class="nav-item" onclick="scrollToBudgetArea()"><span class="icon">PLAN</span> Planejamento</div>
   <div class="sidebar-section">Relatorios</div>
-  <div class="nav-item" onclick="openReport()"><span class="icon">•</span> Relatorio Executivo</div>
-  <div class="nav-item"><span class="icon">•</span> Analise de Estouro</div>
-  <div class="sidebar-section">Config.</div>
-  <div class="nav-item"><span class="icon">•</span> Categorias</div>
-  <div class="nav-item"><span class="icon">•</span> Usuarios</div>
+  <div class="nav-item" onclick="openReport()"><span class="icon">PDF</span> Relatorio Executivo</div>
+  <div class="nav-item" onclick="scrollToBudgetArea()"><span class="icon">RISK</span> Analise de Estouro</div>
+  <div class="sidebar-section">Ajustes</div>
+  <div class="nav-item" onclick="scrollToCategoriesArea()"><span class="icon">CAT</span> Categorias</div>
+  <div class="nav-item" onclick="openDataSettings()"><span class="icon">CFG</span> Limpeza de Dados</div>
   <div class="sidebar-bottom" id="lastSync">Sincronizando...</div>
 </aside>
 
@@ -252,7 +253,7 @@ tbody td{padding:12px 16px;}
     <button class="btn btn-ghost" onclick="refreshData()">Atualizar</button>
     <button class="btn btn-ghost" onclick="toggleImport()">Importar SAP</button>
     <button class="btn btn-gold" onclick="openReport()">Relatorio Executivo</button>
-    <div class="avatar">GL</div>
+    <div class="avatar">ADM</div>
   </div>
 </header>
 
@@ -295,27 +296,27 @@ tbody td{padding:12px 16px;}
   <!-- KPI CARDS -->
   <div class="kpi-grid">
     <div class="kpi">
-      <div class="kpi-icon">BT</div>
+      <div class="kpi-icon">Total</div>
       <div class="kpi-label">Budget Total</div>
       <div class="kpi-value" id="kpiBudget">--</div>
       <div class="kpi-sub" id="kpiBudgetSub">Carregando...</div>
     </div>
     <div class="kpi teal">
-      <div class="kpi-icon">OK</div>
+      <div class="kpi-icon">Pago</div>
       <div class="kpi-label">Realizado</div>
       <div class="kpi-value" id="kpiRealizado">--</div>
       <div class="kpi-sub" id="kpiRealizadoSub">Carregando...</div>
       <span class="kpi-tag tag-green" id="kpiRealizadoTag"></span>
     </div>
     <div class="kpi gold">
-      <div class="kpi-icon">CP</div>
+      <div class="kpi-icon">Prev.</div>
       <div class="kpi-label">Comprometido</div>
       <div class="kpi-value" id="kpiComp">--</div>
-      <div class="kpi-sub">Realizado + Provisoes</div>
+      <div class="kpi-sub">Realizado + previsoes</div>
       <span class="kpi-tag tag-gold" id="kpiCompTag"></span>
     </div>
     <div class="kpi red">
-      <div class="kpi-icon">AL</div>
+      <div class="kpi-icon">Aviso</div>
       <div class="kpi-label">Categorias em Alerta</div>
       <div class="kpi-value" id="kpiAlertas">--</div>
       <div class="kpi-sub" id="kpiAlertasSub">Carregando...</div>
@@ -358,7 +359,7 @@ tbody td{padding:12px 16px;}
   </div>
 
   <!-- MONTH STRIP -->
-  <div class="card" style="margin-bottom:24px">
+  <div class="card" id="budgetArea" style="margin-bottom:24px">
     <div class="card-header" style="margin-bottom:14px">
       <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>Navegacao Mensal</div>
     </div>
@@ -433,7 +434,7 @@ tbody td{padding:12px 16px;}
         <button class="btn btn-ghost" onclick="document.getElementById('previewWrap').style.display='none'">Cancelar</button>
       </div>
     </div>
-    <div class="danger-panel">
+    <div class="danger-panel" id="dataSettingsPanel">
       <div class="danger-title">Limpeza protegida por senha</div>
       <div class="danger-copy">Apague lancamentos do Supabase por ano, por mes, por CSV ou tudo. Use com cuidado.</div>
       <div class="danger-grid">
@@ -1023,6 +1024,26 @@ function updateTopbar(ano, mes) {
 }
 
 // INTERACTIONS
+function scrollToBudgetArea() {
+  const area = document.getElementById('budgetArea');
+  if (area) area.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function scrollToCategoriesArea() {
+  const area = document.getElementById('budgetArea');
+  if (area) area.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function openDataSettings() {
+  const card = document.getElementById('importCard');
+  if (card.style.display === 'none') card.style.display = 'block';
+  card.scrollIntoView({behavior:'smooth', block:'start'});
+  setTimeout(() => {
+    const panel = document.getElementById('dataSettingsPanel');
+    if (panel) panel.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 150);
+}
+
 function selectMonth(mes) {
   document.getElementById('filterMes').value = mes;
   document.querySelectorAll('.month-chip').forEach((c,i)=>{
