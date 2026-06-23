@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Medley â€” Budget vs Realizado | LogÃ­stica</title>
+<title>Medley - Budget vs Realizado | Logistica</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -219,16 +219,16 @@ tbody td{padding:12px 16px;}
     <div class="logo-sub">Budget Control</div>
   </div>
   <div class="sidebar-section">Principal</div>
-  <div class="nav-item active"><span class="icon">ðŸ“Š</span> Dashboard</div>
-  <div class="nav-item" onclick="toggleImport()"><span class="icon">â¬†</span> Importar SAP</div>
-  <div class="nav-item" onclick="loadLancamentos()"><span class="icon">ðŸ“‹</span> LanÃ§amentos</div>
-  <div class="nav-item"><span class="icon">ðŸŽ¯</span> GestÃ£o de Budget</div>
-  <div class="sidebar-section">RelatÃ³rios</div>
-  <div class="nav-item" onclick="openReport()"><span class="icon">ðŸ“„</span> RelatÃ³rio Executivo</div>
-  <div class="nav-item"><span class="icon">ðŸš¨</span> AnÃ¡lise de Estouro</div>
+  <div class="nav-item active"><span class="icon">•</span> Dashboard</div>
+  <div class="nav-item" onclick="toggleImport()"><span class="icon">+</span> Importar SAP</div>
+  <div class="nav-item" onclick="loadLancamentos()"><span class="icon">•</span> Lancamentos</div>
+  <div class="nav-item"><span class="icon">•</span> Gestao de Budget</div>
+  <div class="sidebar-section">Relatorios</div>
+  <div class="nav-item" onclick="openReport()"><span class="icon">•</span> Relatorio Executivo</div>
+  <div class="nav-item"><span class="icon">•</span> Analise de Estouro</div>
   <div class="sidebar-section">Config.</div>
-  <div class="nav-item"><span class="icon">âš™</span> Categorias</div>
-  <div class="nav-item"><span class="icon">ðŸ‘¥</span> UsuÃ¡rios</div>
+  <div class="nav-item"><span class="icon">•</span> Categorias</div>
+  <div class="nav-item"><span class="icon">•</span> Usuarios</div>
   <div class="sidebar-bottom" id="lastSync">Sincronizando...</div>
 </aside>
 
@@ -237,12 +237,12 @@ tbody td{padding:12px 16px;}
 <header class="topbar">
   <div>
     <div class="topbar-title">Dashboard de Budget</div>
-    <div class="topbar-breadcrumb" id="topbarSub">LogÃ­stica Â· Carregando...</div>
+    <div class="topbar-breadcrumb" id="topbarSub">Logistica · Carregando...</div>
   </div>
   <div class="topbar-right">
-    <button class="btn btn-ghost" onclick="refreshData()">ðŸ”„ Atualizar</button>
-    <button class="btn btn-ghost" onclick="toggleImport()">â¬† Importar SAP</button>
-    <button class="btn btn-gold" onclick="openReport()">ðŸ“„ RelatÃ³rio Executivo</button>
+    <button class="btn btn-ghost" onclick="refreshData()">Atualizar</button>
+    <button class="btn btn-ghost" onclick="toggleImport()">Importar SAP</button>
+    <button class="btn btn-gold" onclick="openReport()">Relatorio Executivo</button>
     <div class="avatar">GL</div>
   </div>
 </header>
@@ -263,11 +263,11 @@ tbody td{padding:12px 16px;}
     </div>
     <div class="filter-sep"></div>
     <div class="filter-group">
-      <span class="filter-label">PerÃ­odo</span>
+      <span class="filter-label">Periodo</span>
       <select class="filter-select" id="filterMes" onchange="refreshData()">
         <option value="0">Acumulado (ano todo)</option>
         <option value="1">Janeiro</option><option value="2">Fevereiro</option>
-        <option value="3">MarÃ§o</option><option value="4">Abril</option>
+        <option value="3">Marco</option><option value="4">Abril</option>
         <option value="5">Maio</option><option value="6">Junho</option>
         <option value="7">Julho</option><option value="8">Agosto</option>
         <option value="9">Setembro</option><option value="10">Outubro</option>
@@ -333,7 +333,7 @@ tbody td{padding:12px 16px;}
     </div>
     <div class="card">
       <div class="card-header">
-        <div class="card-title"><div class="accent" style="background:var(--gold)"></div>DistribuiÃ§Ã£o por Categoria</div>
+        <div class="card-title"><div class="accent" style="background:var(--gold)"></div>Distribuicao por Categoria</div>
       </div>
       <div class="card-body">
         <div class="chart-box-pie">
@@ -351,7 +351,7 @@ tbody td{padding:12px 16px;}
   <!-- MONTH STRIP -->
   <div class="card" style="margin-bottom:24px">
     <div class="card-header" style="margin-bottom:14px">
-      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>NavegaÃ§Ã£o Mensal</div>
+      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>Navegacao Mensal</div>
     </div>
     <div class="month-strip" id="monthStrip"></div>
   </div>
@@ -368,7 +368,7 @@ tbody td{padding:12px 16px;}
       <div class="table-wrap"><table>
         <thead><tr>
           <th>Categoria</th><th>Budget</th><th>Realizado</th>
-          <th>ProvisÃ£o</th><th>Comprometido</th><th>Saldo</th><th>% Utilizado</th><th>Status</th>
+          <th>Provisao</th><th>Comprometido</th><th>Saldo</th><th>% Utilizado</th><th>Status</th>
         </tr></thead>
         <tbody id="tabelaDetalhe"></tbody>
       </table></div>
@@ -378,7 +378,7 @@ tbody td{padding:12px 16px;}
   <!-- LANCAMENTOS TABLE -->
   <div class="card" id="lancamentosCard" style="display:none;margin-bottom:24px">
     <div class="card-header" style="margin-bottom:0">
-      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>LanÃ§amentos do SAP</div>
+      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>Lancamentos do SAP</div>
       <div class="card-actions">
         <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="document.getElementById('lancamentosCard').style.display='none'">âœ•</button>
       </div>
@@ -386,7 +386,7 @@ tbody td{padding:12px 16px;}
     <div class="card-body" style="padding-top:16px">
       <div class="table-wrap"><table>
         <thead><tr>
-          <th>Pedido</th><th>DescriÃ§Ã£o</th><th>Fornecedor</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Categoria</th>
+          <th>Pedido</th><th>Descricao</th><th>Fornecedor</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Categoria</th>
         </tr></thead>
         <tbody id="tabelaLancamentos"></tbody>
       </table></div>
@@ -402,19 +402,19 @@ tbody td{padding:12px 16px;}
       </div>
     </div>
     <div class="tabs" style="margin-top:12px">
-      <div class="tab active">ðŸ“„ Upload CSV / XLSX</div>
+      <div class="tab active">Upload CSV / XLSX</div>
     </div>
     <div class="import-drop" onclick="document.getElementById('fileIn').click()">
       <div class="import-drop-icon">ðŸ“‚</div>
       <div class="import-drop-title">Arraste o arquivo aqui ou clique para selecionar</div>
-      <div class="import-drop-sub">Aceita .CSV exportado do SAP Â· Colunas: numero_pedido, descricao, fornecedor, data_lancamento, valor, tipo</div>
+      <div class="import-drop-sub">Aceita .CSV exportado do SAP · Colunas: numero_pedido, descricao, fornecedor, data_lancamento, valor, tipo</div>
       <input type="file" id="fileIn" accept=".csv" style="display:none" onchange="handleCSV(this)">
     </div>
     <div style="margin:0 22px 20px;padding:14px 16px;background:var(--green-pale);border-radius:8px;font-size:12px;color:var(--text-mid)">
-      <strong style="color:var(--green-deep)">ðŸ“Œ Colunas esperadas no CSV:</strong> numero_pedido Â· descricao Â· fornecedor Â· data_lancamento (DD/MM/AAAA) Â· valor Â· tipo (realizado ou provisao) Â· categoria_id (opcional)
+      <strong style="color:var(--green-deep)">Colunas esperadas no CSV:</strong> numero_pedido · descricao · fornecedor · data_lancamento (DD/MM/AAAA) · valor · tipo (realizado ou provisao) · categoria_id (opcional)
     </div>
     <div id="previewWrap" style="display:none;padding:0 22px 22px">
-      <div style="font-size:13px;font-weight:700;color:var(--green-deep);margin-bottom:12px">PrÃ©-visualizaÃ§Ã£o â€” revise antes de importar:</div>
+      <div style="font-size:13px;font-weight:700;color:var(--green-deep);margin-bottom:12px">Pre-visualizacao - revise antes de importar:</div>
       <div class="table-wrap"><table>
         <thead><tr><th>Pedido</th><th>DescriÃ§Ã£o</th><th>Fornecedor</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Categoria</th></tr></thead>
         <tbody id="previewBody"></tbody>
@@ -655,6 +655,23 @@ async function loadLancamentos() {
 
 // â”€â”€ UPDATE UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function updateKPIs(data, alertas) {
+  if (HIDE_ALL_DATA || !data.length) {
+    document.getElementById('kpiBudget').textContent = '—';
+    document.getElementById('kpiBudgetSub').textContent = 'Sem dados';
+    document.getElementById('kpiRealizado').textContent = '—';
+    document.getElementById('kpiRealizadoSub').textContent = 'Sem dados';
+    document.getElementById('kpiRealizadoTag').textContent = '';
+    document.getElementById('kpiComp').textContent = '—';
+    document.getElementById('kpiCompTag').textContent = '';
+    document.getElementById('kpiAlertas').textContent = 'Sem dados';
+    document.getElementById('kpiAlertasSub').textContent = 'Nenhum dado exibido';
+    document.getElementById('sumBudget').textContent = '—';
+    document.getElementById('sumComp').textContent = '—';
+    document.getElementById('sumSaldo').textContent = '—';
+    document.getElementById('sumSaldo').style.color = 'var(--text-light)';
+    document.querySelector('.kpi.red').querySelector('.kpi-value').style.color='var(--text)';
+    return;
+  }
   const totB = data.reduce((s,r)=>s+(r.budget_anual||0),0);
   const totR = data.reduce((s,r)=>s+(r.realizado_acumulado||0),0);
   const totP = data.reduce((s,r)=>s+(r.provisao_acumulada||0),0);
@@ -835,8 +852,8 @@ function updateMonthStrip(monthly) {
 }
 
 function updateTopbar(ano, mes) {
-  const label = mes===0?`Acumulado ${ano}`:`${MESES[mes-1]}/${ano}`;
-  document.getElementById('topbarSub').textContent = `LogÃ­stica Â· ${label}`;
+  const label = HIDE_ALL_DATA ? 'Sem dados' : (mes===0?`Acumulado ${ano}`:`${MESES[mes-1]}/${ano}`);
+  document.getElementById('topbarSub').textContent = `Logistica · ${label}`;
   document.getElementById('lastSync').textContent = `Sync: ${today()}`;
 }
 
