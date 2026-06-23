@@ -117,6 +117,15 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--
 .card-actions{display:flex;gap:6px;}
 .chart-box{position:relative;height:320px;}
 .chart-box-pie{position:relative;height:320px;}
+.danger-panel{margin:0 22px 22px;padding:18px;border:1px solid #F5C2C7;background:#FFF5F5;border-radius:12px;}
+.danger-title{font-size:13px;font-weight:800;color:#922B21;margin-bottom:6px;}
+.danger-copy{font-size:12px;color:#7A4B4B;margin-bottom:14px;}
+.danger-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.danger-field{display:flex;flex-direction:column;gap:6px;}
+.danger-label{font-size:11px;font-weight:700;color:#7A4B4B;text-transform:uppercase;letter-spacing:.4px;}
+.danger-input{padding:9px 10px;border:1.5px solid #F1B5BB;border-radius:8px;font:inherit;background:white;color:var(--text);}
+.danger-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.danger-note{font-size:11px;color:#8C5E5E;margin-top:10px;}
 /* CHART LEGEND */
 .chart-legend{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-mid);font-weight:500;}
@@ -424,6 +433,43 @@ tbody td{padding:12px 16px;}
         <button class="btn btn-ghost" onclick="document.getElementById('previewWrap').style.display='none'">Cancelar</button>
       </div>
     </div>
+    <div class="danger-panel">
+      <div class="danger-title">Limpeza protegida por senha</div>
+      <div class="danger-copy">Apague lancamentos do Supabase por ano, por mes, por CSV ou tudo. Use com cuidado.</div>
+      <div class="danger-grid">
+        <label class="danger-field">
+          <span class="danger-label">Senha</span>
+          <input class="danger-input" id="adminPasswordInput" type="password" placeholder="Digite a senha">
+        </label>
+        <label class="danger-field">
+          <span class="danger-label">Ano</span>
+          <input class="danger-input" id="deleteYearInput" type="number" min="2020" max="2100" value="2026">
+        </label>
+        <label class="danger-field">
+          <span class="danger-label">Mes</span>
+          <select class="danger-input" id="deleteMonthInput">
+            <option value="">Todos os meses</option>
+            <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+            <option value="3">Marco</option><option value="4">Abril</option>
+            <option value="5">Maio</option><option value="6">Junho</option>
+            <option value="7">Julho</option><option value="8">Agosto</option>
+            <option value="9">Setembro</option><option value="10">Outubro</option>
+            <option value="11">Novembro</option><option value="12">Dezembro</option>
+          </select>
+        </label>
+        <label class="danger-field">
+          <span class="danger-label">CSV de exclusao</span>
+          <input class="danger-input" id="deleteCsvInput" type="file" accept=".csv" onchange="handleDeleteCSV(this)">
+        </label>
+      </div>
+      <div class="danger-actions">
+        <button class="btn btn-ghost" onclick="deleteLancamentos('year')">Apagar ano</button>
+        <button class="btn btn-ghost" onclick="deleteLancamentos('month')">Apagar mes</button>
+        <button class="btn btn-ghost" onclick="deleteLancamentos('csv')">Apagar CSV</button>
+        <button class="btn btn-gold" style="background:#D63031" onclick="deleteLancamentos('all')">Apagar tudo</button>
+      </div>
+      <div class="danger-note" id="deleteCsvStatus">Para apagar por planilha, envie um CSV com a coluna numero_pedido.</div>
+    </div>
   </div>
 
 </div><!-- /main -->
@@ -480,11 +526,13 @@ const SUPABASE_KEY = 'sb_publishable_dlJ-y9birCNkFBYaIfA_qw_KEPv-G54';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 const HIDE_ALL_DATA = true;
+const ADMIN_DELETE_PASSWORD = 'medley-admin-2026';
 
 // â”€â”€ STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let chartMensal = null, chartPie = null;
 let allData = [], categorias = [];
 let pendingImport = [];
+let pendingDeleteOrders = [];
 
 const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
@@ -540,6 +588,59 @@ function splitCSVLine(line, delimiter) {
   }
   result.push(current);
   return result.map(v => v.trim());
+}
+function getDeletePassword() {
+  return (document.getElementById('adminPasswordInput')?.value || '').trim();
+}
+function canDeleteData() {
+  if (getDeletePassword() !== ADMIN_DELETE_PASSWORD) {
+    showErrorAlert('Senha incorreta para limpeza de lancamentos.');
+    return false;
+  }
+  return true;
+}
+function getDeleteYear() {
+  return parseInt(document.getElementById('deleteYearInput')?.value || document.getElementById('filterAno').value, 10);
+}
+function getDeleteMonth() {
+  const raw = document.getElementById('deleteMonthInput')?.value || '';
+  return raw ? parseInt(raw, 10) : null;
+}
+function updateDeleteCsvStatus(message) {
+  const el = document.getElementById('deleteCsvStatus');
+  if (el) el.textContent = message;
+}
+function handleDeleteCSV(input) {
+  const file = input.files[0];
+  pendingDeleteOrders = [];
+  if (!file) {
+    updateDeleteCsvStatus('Para apagar por planilha, envie um CSV com a coluna numero_pedido.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const rawText = (e.target.result || '').replace(/^\uFEFF/, '').replace(/\r/g, '');
+    const lines = rawText.split('\n').filter(l => l.trim());
+    if (!lines.length) {
+      updateDeleteCsvStatus('CSV vazio.');
+      return;
+    }
+    const delimiter = detectDelimiter(lines[0]);
+    const headers = splitCSVLine(lines[0], delimiter).map(h => h.trim().toLowerCase().replace(/['\"]/g, ''));
+    const idx = headers.findIndex(h => ['numero_pedido','pedido','nr_pedido','n_pedido'].includes(h));
+    if (idx === -1) {
+      updateDeleteCsvStatus('CSV sem coluna numero_pedido.');
+      return;
+    }
+    pendingDeleteOrders = [...new Set(lines.slice(1)
+      .map(line => splitCSVLine(line, delimiter)[idx] || '')
+      .map(v => v.trim())
+      .filter(Boolean))];
+    updateDeleteCsvStatus(pendingDeleteOrders.length
+      ? `${pendingDeleteOrders.length} pedido(s) prontos para exclusao via CSV.`
+      : 'Nenhum pedido valido encontrado no CSV.');
+  };
+  reader.readAsText(file);
 }
 function normalizeMonthlyData(rows, ano) {
   const numericYear = parseInt(ano, 10);
@@ -651,6 +752,70 @@ async function loadLancamentos() {
     <td style="font-weight:600">${fmt(r.valor)}</td>
     <td>${r.categorias?.nome||'â€”'}</td>
   </tr>`).join('');
+}
+
+async function deleteLancamentos(scope) {
+  if (!canDeleteData()) return;
+  const year = getDeleteYear();
+  const month = getDeleteMonth();
+  if (!year || Number.isNaN(year)) {
+    showErrorAlert('Informe um ano valido para a limpeza.');
+    return;
+  }
+
+  let query = db.from('lancamentos').delete();
+  let summary = '';
+
+  if (scope === 'all') {
+    if (!window.confirm('Apagar TODOS os lancamentos do banco?')) return;
+    query = query.gte('ano', 0);
+    summary = 'todos os lancamentos';
+  } else if (scope === 'year') {
+    if (!window.confirm(`Apagar todos os lancamentos de ${year}?`)) return;
+    query = query.eq('ano', year);
+    summary = `todos os lancamentos de ${year}`;
+  } else if (scope === 'month') {
+    if (!month) {
+      showErrorAlert('Selecione um mes para apagar por periodo.');
+      return;
+    }
+    const start = `${year}-${String(month).padStart(2, '0')}-01`;
+    const nextDate = new Date(year, month, 1);
+    const nextMonth = `${nextDate.getFullYear()}-${String(nextDate.getMonth() + 1).padStart(2, '0')}-01`;
+    if (!window.confirm(`Apagar os lancamentos de ${String(month).padStart(2, '0')}/${year}?`)) return;
+    query = query.gte('data_lancamento', start).lt('data_lancamento', nextMonth);
+    summary = `lancamentos de ${String(month).padStart(2, '0')}/${year}`;
+  } else if (scope === 'csv') {
+    if (!pendingDeleteOrders.length) {
+      showErrorAlert('Envie um CSV com pedidos para apagar por planilha.');
+      return;
+    }
+    if (!window.confirm(`Apagar ${pendingDeleteOrders.length} pedido(s) listados no CSV?`)) return;
+    query = query.in('numero_pedido', pendingDeleteOrders);
+    summary = `${pendingDeleteOrders.length} pedido(s) do CSV`;
+  } else {
+    showErrorAlert('Tipo de limpeza invalido.');
+    return;
+  }
+
+  setLoading(`Apagando ${summary}...`);
+  const { error } = await query;
+  hideLoading();
+  if (error) {
+    const hint = error.message && error.message.toLowerCase().includes('row-level security')
+      ? ' Verifique a policy de DELETE da tabela lancamentos no Supabase.'
+      : '';
+    showErrorAlert('Erro ao apagar: ' + error.message + hint);
+    return;
+  }
+
+  pendingDeleteOrders = scope === 'csv' ? [] : pendingDeleteOrders;
+  if (scope === 'csv') {
+    document.getElementById('deleteCsvInput').value = '';
+    updateDeleteCsvStatus('CSV limpo. Envie outro arquivo para nova exclusao.');
+  }
+  showSuccessAlert(`Limpeza concluida: ${summary}.`);
+  await refreshData();
 }
 
 // â”€â”€ UPDATE UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
