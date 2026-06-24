@@ -348,33 +348,46 @@ tbody td{padding:12px 16px;}
         <option value="">Todas</option>
       </select>
     </div>
+    <div class="filter-sep"></div>
+    <div class="filter-group">
+      <span class="filter-label">Cenario Base</span>
+      <select class="filter-select" id="filterScenario" onchange="refreshData()">
+        <option value="">Selecione</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Comparar Com</span>
+      <select class="filter-select" id="filterCompare" onchange="refreshData()">
+        <option value="">Selecione</option>
+      </select>
+    </div>
   </div>
 
   <!-- KPI CARDS -->
   <div class="kpi-grid">
     <div class="kpi">
       <div class="kpi-icon">Total</div>
-      <div class="kpi-label">Budget Total</div>
+      <div class="kpi-label" id="kpiBudgetLabel">Cenario Base</div>
       <div class="kpi-value" id="kpiBudget">--</div>
       <div class="kpi-sub" id="kpiBudgetSub">Carregando...</div>
     </div>
     <div class="kpi teal">
       <div class="kpi-icon">Pago</div>
-      <div class="kpi-label">Realizado</div>
+      <div class="kpi-label" id="kpiRealizadoLabel">Cenario Comparativo</div>
       <div class="kpi-value" id="kpiRealizado">--</div>
       <div class="kpi-sub" id="kpiRealizadoSub">Carregando...</div>
       <span class="kpi-tag tag-green" id="kpiRealizadoTag"></span>
     </div>
     <div class="kpi gold">
       <div class="kpi-icon">Prev.</div>
-      <div class="kpi-label">Comprometido</div>
+      <div class="kpi-label" id="kpiCompLabel">Variacao Absoluta</div>
       <div class="kpi-value" id="kpiComp">--</div>
-      <div class="kpi-sub">Realizado + previsoes</div>
+      <div class="kpi-sub" id="kpiCompSub">Comparativo - Base</div>
       <span class="kpi-tag tag-gold" id="kpiCompTag"></span>
     </div>
     <div class="kpi red">
       <div class="kpi-icon">Aviso</div>
-      <div class="kpi-label">Categorias em Alerta</div>
+      <div class="kpi-label" id="kpiAlertasLabel">Maior Variacao</div>
       <div class="kpi-value" id="kpiAlertas">--</div>
       <div class="kpi-sub" id="kpiAlertasSub">Carregando...</div>
       <span class="kpi-tag tag-red" id="kpiAlertasTag"></span>
@@ -389,9 +402,9 @@ tbody td{padding:12px 16px;}
       </div>
       <div class="card-body">
         <div class="chart-legend">
-          <div class="legend-item"><div class="legend-dot" style="background:#006B5B"></div>Budget</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#009B8D"></div>Realizado</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#F0A500"></div>Comprometido</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#006B5B"></div><span id="legendBase">Base</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#009B8D"></div><span id="legendCompare">Comparativo</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#F0A500"></div><span id="legendDiff">Variacao</span></div>
         </div>
         <div class="chart-box">
           <canvas id="chartMensal"></canvas>
@@ -434,8 +447,8 @@ tbody td{padding:12px 16px;}
     <div class="card-body" style="padding-top:16px">
       <div class="table-wrap"><table>
         <thead><tr>
-          <th>Categoria</th><th>Budget</th><th>Realizado</th>
-          <th>Provisao</th><th>Comprometido</th><th>Saldo</th><th>% Utilizado</th><th>Status</th>
+          <th>Categoria</th><th id="thBase">Base</th><th id="thCompare">Comparativo</th>
+          <th>Diferenca</th><th>% Variacao</th><th>Status</th>
         </tr></thead>
         <tbody id="tabelaDetalhe"></tbody>
       </table></div>
@@ -545,21 +558,21 @@ tbody td{padding:12px 16px;}
       </div>
     </div>
     <div class="report-meta">
-      <div class="report-meta-item"><div class="report-meta-label">Budget</div><div class="report-meta-value" id="rBudget">--</div></div>
-      <div class="report-meta-item"><div class="report-meta-label">Realizado</div><div class="report-meta-value green" id="rReal">--</div></div>
-      <div class="report-meta-item"><div class="report-meta-label">Comprometido</div><div class="report-meta-value" style="color:var(--yellow)" id="rComp">--</div></div>
-      <div class="report-meta-item"><div class="report-meta-label">Saldo</div><div class="report-meta-value green" id="rSaldo">--</div></div>
+      <div class="report-meta-item"><div class="report-meta-label" id="rBudgetLabel">Cenario Base</div><div class="report-meta-value" id="rBudget">--</div></div>
+      <div class="report-meta-item"><div class="report-meta-label" id="rRealLabel">Comparativo</div><div class="report-meta-value green" id="rReal">--</div></div>
+      <div class="report-meta-item"><div class="report-meta-label" id="rCompLabel">Variacao</div><div class="report-meta-value" style="color:var(--yellow)" id="rComp">--</div></div>
+      <div class="report-meta-item"><div class="report-meta-label" id="rSaldoLabel">Categorias</div><div class="report-meta-value green" id="rSaldo">--</div></div>
     </div>
     <div class="report-body">
       <div class="report-section-title">Resumo por Categoria</div>
       <table class="report-table">
-        <thead><tr><th>Categoria</th><th>Budget</th><th>Realizado</th><th>Provisao</th><th>Comprometido</th><th>Saldo</th><th>%</th><th>Status</th></tr></thead>
+        <thead><tr><th>Categoria</th><th id="rthBase">Base</th><th id="rthCompare">Comparativo</th><th>Diferenca</th><th>% Variacao</th><th>Status</th></tr></thead>
         <tbody id="reportTableBody"></tbody>
         <tfoot><tr id="reportTotals"></tr></tfoot>
       </table>
       <div class="report-section-title">Categorias em Alerta</div>
       <table class="report-table">
-        <thead><tr><th>Categoria</th><th>Status</th><th>% Utilizado</th><th>Saldo / Estouro</th></tr></thead>
+        <thead><tr><th>Categoria</th><th>Status</th><th>% Variacao</th><th>Diferenca</th></tr></thead>
         <tbody id="reportAlertBody"></tbody>
       </table>
     </div>
@@ -588,6 +601,7 @@ let chartMensal = null, chartPie = null;
 let allData = [], categorias = [];
 let pendingImport = [];
 let pendingDeleteOrders = [];
+let cenarioOptions = [];
 
 const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
@@ -715,15 +729,139 @@ function resetDashboardState(message) {
   if (message) showErrorAlert(message);
 }
 
+function getScenarioBase() {
+  return document.getElementById('filterScenario')?.value || '';
+}
+
+function getScenarioCompare() {
+  return document.getElementById('filterCompare')?.value || '';
+}
+
+function getScenarioLabel(value) {
+  return value || 'Sem cenario';
+}
+
+function buildComparisonRows(baseRows, compareRows) {
+  const grouped = new Map();
+  baseRows.forEach(row => {
+    const key = row.categoria;
+    if (!grouped.has(key)) grouped.set(key, { categoria: key, valor_base: 0, valor_comparativo: 0 });
+    grouped.get(key).valor_base += Number(row.valor_total || 0);
+  });
+  compareRows.forEach(row => {
+    const key = row.categoria;
+    if (!grouped.has(key)) grouped.set(key, { categoria: key, valor_base: 0, valor_comparativo: 0 });
+    grouped.get(key).valor_comparativo += Number(row.valor_total || 0);
+  });
+
+  return [...grouped.values()].map(row => {
+    const variacaoValor = row.valor_comparativo - row.valor_base;
+    const variacaoPercentual = row.valor_base ? (variacaoValor / row.valor_base) * 100 : 0;
+    const pctUso = row.valor_base ? Math.round((row.valor_comparativo / row.valor_base) * 100) : 0;
+    return {
+      ...row,
+      variacao_valor: variacaoValor,
+      variacao_percentual: variacaoPercentual,
+      budget_anual: row.valor_base,
+      realizado_acumulado: row.valor_comparativo,
+      provisao_acumulada: 0,
+      comprometido: row.valor_comparativo,
+      saldo_anual: variacaoValor,
+      pct_utilizado: pctUso,
+      status: Math.abs(variacaoPercentual) >= 10 ? 'Atencao' : 'OK'
+    };
+  }).sort((a, b) => Math.abs(b.variacao_valor) - Math.abs(a.variacao_valor));
+}
+
+async function loadScenarioFilters() {
+  const baseSel = document.getElementById('filterScenario');
+  const compareSel = document.getElementById('filterCompare');
+  if (!baseSel || !compareSel) return;
+
+  const currentBase = baseSel.value;
+  const currentCompare = compareSel.value;
+  const { data, error } = await db.from('financeiro_base_importada').select('cenario');
+  if (error) {
+    cenarioOptions = [];
+    return;
+  }
+
+  cenarioOptions = [...new Set((data || []).map(r => r.cenario).filter(Boolean))].sort();
+  baseSel.innerHTML = '';
+  compareSel.innerHTML = '';
+
+  cenarioOptions.forEach(cenario => {
+    const optBase = document.createElement('option');
+    optBase.value = cenario;
+    optBase.textContent = cenario;
+    if (cenario === currentBase) optBase.selected = true;
+    baseSel.appendChild(optBase);
+
+    const optCompare = document.createElement('option');
+    optCompare.value = cenario;
+    optCompare.textContent = cenario;
+    if (cenario === currentCompare) optCompare.selected = true;
+    compareSel.appendChild(optCompare);
+  });
+
+  if (!baseSel.value && cenarioOptions[0]) baseSel.value = cenarioOptions[0];
+  if (!compareSel.value) compareSel.value = cenarioOptions[1] || cenarioOptions[0] || '';
+  if (compareSel.value === baseSel.value && cenarioOptions.length > 1) {
+    compareSel.value = cenarioOptions.find(c => c !== baseSel.value) || compareSel.value;
+  }
+}
+
+async function loadAnalyticalData(ano, mes, cat) {
+  const baseScenario = getScenarioBase();
+  const compareScenario = getScenarioCompare();
+  if (!baseScenario || !compareScenario) {
+    resetDashboardState('Selecione os cenarios para comparar.');
+    updateTopbar(ano, mes);
+    return;
+  }
+
+  setLoading('Buscando base analitica do Supabase...');
+  try {
+    let qCategory = db.from('vw_financeiro_categoria_mes').select('*').eq('ano', ano).in('cenario', [baseScenario, compareScenario]);
+    if (mes) qCategory = qCategory.eq('periodo', mes);
+    if (cat) qCategory = qCategory.eq('categoria', cat);
+    const { data: categoryRows, error: categoryError } = await qCategory;
+    if (categoryError) throw categoryError;
+
+    const baseRows = (categoryRows || []).filter(r => r.cenario === baseScenario);
+    const compareRows = (categoryRows || []).filter(r => r.cenario === compareScenario);
+    allData = buildComparisonRows(baseRows, compareRows);
+
+    let qMonthly = db.from('vw_financeiro_cenario_mes').select('*').eq('ano', ano).in('cenario', [baseScenario, compareScenario]);
+    const { data: monthlyRows, error: monthlyError } = await qMonthly;
+    if (monthlyError) throw monthlyError;
+
+    const monthlyData = (monthlyRows || []).map(row => ({
+      mes: Number(row.periodo || 0),
+      cenario: row.cenario,
+      valor_total: Number(row.valor_total || 0)
+    })).filter(r => r.mes >= 1 && r.mes <= 12);
+
+    const alertas = allData.filter(row => Math.abs(row.variacao_percentual) >= 10 || Math.abs(row.variacao_valor) >= 1000000);
+    hideLoading();
+    updateKPIs(allData, alertas);
+    updateCharts(monthlyData, allData);
+    updateTable(allData);
+    updateMonthStrip(monthlyData);
+    updateTopbar(ano, mes);
+  } catch (err) {
+    hideLoading();
+    resetDashboardState('Erro ao carregar base analitica: ' + err.message);
+  }
+}
+
 // LOAD DATA
 async function loadData() {
   const ano = document.getElementById('filterAno').value;
   const mes = parseInt(document.getElementById('filterMes').value);
   const cat = document.getElementById('filterCat').value;
   if (HIDE_ALL_DATA) {
-    hideLoading();
-    resetDashboardState('');
-    updateTopbar(ano, mes);
+    await loadAnalyticalData(ano, mes, cat);
     return;
   }
   setLoading('Buscando dados do Supabase...');
@@ -763,7 +901,16 @@ async function loadCategories() {
   const currentValue = sel.value;
   sel.innerHTML = '<option value="">Todas</option>';
   if (HIDE_ALL_DATA) {
-    categorias = [];
+    const ano = document.getElementById('filterAno').value;
+    const { data, error } = await db.from('vw_financeiro_categoria_mes').select('categoria').eq('ano', ano);
+    categorias = (!error && data) ? [...new Set(data.map(r => r.categoria).filter(Boolean))].sort().map(nome => ({ nome })) : [];
+    categorias.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.nome;
+      o.textContent = c.nome;
+      if (c.nome === currentValue) o.selected = true;
+      sel.appendChild(o);
+    });
     return;
   }
   const { data, error } = await db.from('categorias').select('*').eq('ativo', true);
@@ -875,6 +1022,17 @@ async function deleteLancamentos(scope) {
 
 // UPDATE UI
 function updateKPIs(data, alertas) {
+  const baseScenario = getScenarioLabel(getScenarioBase());
+  const compareScenario = getScenarioLabel(getScenarioCompare());
+  document.getElementById('kpiBudgetLabel').textContent = `Cenario Base`;
+  document.getElementById('kpiRealizadoLabel').textContent = `Cenario Comparativo`;
+  document.getElementById('kpiCompLabel').textContent = 'Variacao Absoluta';
+  document.getElementById('kpiAlertasLabel').textContent = 'Maior Variacao';
+  document.getElementById('legendBase').textContent = baseScenario;
+  document.getElementById('legendCompare').textContent = compareScenario;
+  document.getElementById('legendDiff').textContent = 'Variacao';
+  document.getElementById('thBase').textContent = baseScenario;
+  document.getElementById('thCompare').textContent = compareScenario;
   if (HIDE_ALL_DATA || !data.length) {
     document.getElementById('kpiBudget').textContent = '--';
     document.getElementById('kpiBudgetSub').textContent = 'Sem dados';
@@ -892,48 +1050,46 @@ function updateKPIs(data, alertas) {
     document.querySelector('.kpi.red').querySelector('.kpi-value').style.color='var(--text)';
     return;
   }
-  const totB = data.reduce((s,r)=>s+(r.budget_anual||0),0);
-  const totR = data.reduce((s,r)=>s+(r.realizado_acumulado||0),0);
-  const totP = data.reduce((s,r)=>s+(r.provisao_acumulada||0),0);
-  const totC = totR+totP, totS = totB-totC;
-  const pctR = totB?Math.round(totR/totB*100):0;
-  const pctC = totB?Math.round(totC/totB*100):0;
-  const nAlertas = alertas.length;
+  const totBase = data.reduce((s,r)=>s+(r.valor_base||0),0);
+  const totCompare = data.reduce((s,r)=>s+(r.valor_comparativo||0),0);
+  const totDiff = data.reduce((s,r)=>s+(r.variacao_valor||0),0);
+  const pctCompare = totBase ? Math.round((totCompare / totBase) * 100) : 0;
+  const topDiff = [...data].sort((a,b)=>Math.abs(b.variacao_valor)-Math.abs(a.variacao_valor))[0];
 
-  document.getElementById('kpiBudget').textContent = fmtShort(totB);
-  document.getElementById('kpiBudgetSub').textContent = `Planejado ${document.getElementById('filterAno').value}`;
-  document.getElementById('kpiRealizado').textContent = fmtShort(totR);
-  document.getElementById('kpiRealizadoSub').textContent = 'Notas fiscais registradas';
-  document.getElementById('kpiRealizadoTag').textContent = `${pctR}% do budget`;
-  document.getElementById('kpiComp').textContent = fmtShort(totC);
-  document.getElementById('kpiCompTag').textContent = `${pctC}% do budget`;
-  document.getElementById('kpiAlertas').textContent = nAlertas ? `${nAlertas} ${nAlertas===1?'alerta':'alertas'}` : 'Tudo OK';
-  document.getElementById('kpiAlertasSub').textContent = nAlertas ? alertas.slice(0,2).map(a=>a.categoria).join(' | ') : 'Nenhum estouro detectado';
-  if(!nAlertas) document.querySelector('.kpi.red').querySelector('.kpi-value').style.color='var(--green-deep)';
+  document.getElementById('kpiBudget').textContent = fmtShort(totBase);
+  document.getElementById('kpiBudgetSub').textContent = `${baseScenario} | ${document.getElementById('filterAno').value}`;
+  document.getElementById('kpiRealizado').textContent = fmtShort(totCompare);
+  document.getElementById('kpiRealizadoSub').textContent = `${compareScenario} | ${document.getElementById('filterAno').value}`;
+  document.getElementById('kpiRealizadoTag').textContent = `${pctCompare}% da base`;
+  document.getElementById('kpiComp').textContent = `${totDiff >= 0 ? '+' : '-'} ${fmtShort(totDiff)}`;
+  document.getElementById('kpiCompSub').textContent = `${compareScenario} - ${baseScenario}`;
+  document.getElementById('kpiCompTag').textContent = `${totBase ? Math.round((totDiff / totBase) * 100) : 0}% de variacao`;
+  document.getElementById('kpiAlertas').textContent = topDiff ? topDiff.categoria : 'Sem dados';
+  document.getElementById('kpiAlertasSub').textContent = topDiff ? `${topDiff.variacao_valor >= 0 ? '+' : '-'} ${fmt(topDiff.variacao_valor)}` : 'Nenhum destaque';
+  document.getElementById('kpiAlertasTag').textContent = alertas.length ? `${alertas.length} categorias sensiveis` : 'Tudo OK';
+  document.querySelector('.kpi.red').querySelector('.kpi-value').style.color = topDiff && topDiff.variacao_valor < 0 ? 'var(--red)' : 'var(--green-deep)';
 
-  // Summary row
-  document.getElementById('sumBudget').textContent = fmtShort(totB);
-  document.getElementById('sumComp').textContent = fmtShort(totC);
-  document.getElementById('sumSaldo').textContent = fmtShort(totS);
-  document.getElementById('sumSaldo').style.color = totS>=0?'var(--green-deep)':'var(--red)';
+  document.getElementById('sumBudget').textContent = fmtShort(totBase);
+  document.getElementById('sumComp').textContent = fmtShort(totCompare);
+  document.getElementById('sumSaldo').textContent = `${totDiff >= 0 ? '+' : '-'} ${fmtShort(totDiff)}`;
+  document.getElementById('sumSaldo').style.color = totDiff>=0?'var(--green-deep)':'var(--red)';
 }
 
 function updateCharts(monthly, catData) {
-  // Group by month
-  const mBudget = Array(12).fill(0), mReal = Array(12).fill(0), mProv = Array(12).fill(0);
+  const baseScenario = getScenarioBase();
+  const compareScenario = getScenarioCompare();
+  const mBase = Array(12).fill(0), mCompare = Array(12).fill(0);
   monthly.forEach(r => {
     const i = (r.mes||1)-1;
-    mBudget[i] += r.budget||0;
-    mReal[i]   += r.realizado||0;
-    mProv[i]   += r.provisao||0;
+    if (r.cenario === baseScenario) mBase[i] += r.valor_total||0;
+    if (r.cenario === compareScenario) mCompare[i] += r.valor_total||0;
   });
-  const mComp = mReal.map((r,i)=>r+mProv[i]);
-  // Avoid drawing future empty months just because budget exists.
-  const hasActivity = mReal.map((v,i)=>v>0 || mComp[i]>0 || mProv[i]>0);
+  const mDiff = mCompare.map((v,i)=>v-mBase[i]);
+  const hasActivity = mBase.map((v,i)=>v>0 || mCompare[i]>0);
   const lastIdx = hasActivity.lastIndexOf(true);
-  const end = lastIdx>=0 ? Math.max(lastIdx+1, 1) : 6;
+  const end = lastIdx>=0 ? Math.max(lastIdx+1, 1) : 12;
   const labels = MESES.slice(0,end);
-  const bSlice = mBudget.slice(0,end), rSlice = mReal.slice(0,end), cSlice = mComp.slice(0,end);
+  const bSlice = mBase.slice(0,end), rSlice = mCompare.slice(0,end), cSlice = mDiff.slice(0,end);
 
   if(chartMensal) chartMensal.destroy();
   if(!labels.length || (!bSlice.some(Boolean) && !rSlice.some(Boolean) && !cSlice.some(Boolean))) {
@@ -946,19 +1102,18 @@ function updateCharts(monthly, catData) {
     type:'bar',
     data:{ labels, datasets:[
       {
-        type:'line',
-        label:'Budget',
+        label:getScenarioLabel(baseScenario),
         data:bSlice,
+        backgroundColor:'rgba(0,107,91,.82)',
         borderColor:'#006B5B',
-        backgroundColor:'rgba(0,107,91,.08)',
-        borderWidth:3,
-        pointRadius:0,
-        pointHoverRadius:4,
-        tension:.25,
-        fill:false
+        borderWidth:0,
+        borderRadius:6,
+        categoryPercentage:.62,
+        barPercentage:.9,
+        maxBarThickness:28
       },
       {
-        label:'Realizado',
+        label:getScenarioLabel(compareScenario),
         data:rSlice,
         backgroundColor:'rgba(0,155,141,.82)',
         borderColor:'#009B8D',
@@ -969,15 +1124,16 @@ function updateCharts(monthly, catData) {
         maxBarThickness:28
       },
       {
-        label:'Comprometido',
+        type:'line',
+        label:'Variacao',
         data:cSlice,
-        backgroundColor:'rgba(240,165,0,.82)',
-        borderColor:'#D9940A',
-        borderWidth:0,
-        borderRadius:6,
-        categoryPercentage:.62,
-        barPercentage:.9,
-        maxBarThickness:28
+        borderColor:'#F0A500',
+        backgroundColor:'rgba(240,165,0,.08)',
+        borderWidth:3,
+        pointRadius:0,
+        pointHoverRadius:4,
+        tension:.25,
+        fill:false
       }
     ]},
     options:{
@@ -1001,8 +1157,7 @@ function updateCharts(monthly, catData) {
   });
   }
 
-  // Pie
-  const cats = catData.filter(c=>c.comprometido>0);
+  const cats = catData.filter(c=>Math.abs(c.valor_base)>0);
   if(chartPie) chartPie.destroy();
   const CORES = ['#006B5B','#009B8D','#00C4B3','#F0A500','#5DB8AA','#C8E6E3','#95A5A6'];
   if(!cats.length) {
@@ -1015,7 +1170,7 @@ function updateCharts(monthly, catData) {
   chartPie = new Chart(document.getElementById('chartPie').getContext('2d'),{
     type:'doughnut',
     data:{labels:cats.map(c=>c.categoria),
-          datasets:[{data:cats.map(c=>c.comprometido),backgroundColor:cats.map((_,i)=>CORES[i%CORES.length]),borderWidth:2,borderColor:'#fff'}]},
+          datasets:[{data:cats.map(c=>Math.abs(c.valor_base)),backgroundColor:cats.map((_,i)=>CORES[i%CORES.length]),borderWidth:2,borderColor:'#fff'}]},
     options:{animation:false,responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:11,padding:9,color:'#4A6461'}}}}
   });
@@ -1023,57 +1178,62 @@ function updateCharts(monthly, catData) {
 
 function updateTable(data) {
   const tb = document.getElementById('tabelaDetalhe');
-  if(!data.length){ tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#aaa;padding:24px">Nenhum dado encontrado para os filtros selecionados</td></tr>'; return; }
-  let totB=0,totR=0,totP=0,totC=0;
+  if(!data.length){ tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#aaa;padding:24px">Nenhum dado encontrado para os filtros selecionados</td></tr>'; return; }
+  let totBase=0,totCompare=0,totDiff=0;
   const CORES=['#006B5B','#009B8D','#00C4B3','#F0A500','#5DB8AA','#C8E6E3'];
   tb.innerHTML = data.map((c,i)=>{
-    const comp=c.comprometido||0, saldo=c.saldo_anual||0, pct=c.pct_utilizado||0;
-    totB+=c.budget_anual||0; totR+=c.realizado_acumulado||0; totP+=c.provisao_acumulada||0; totC+=comp;
-    const over=saldo<0, warn=pct>=80&&pct<100;
-    const pillHtml=over?'<span class="pill pill-red">Estouro</span>':warn?'<span class="pill pill-yellow">Atencao</span>':pct===0?'<span class="pill pill-gray">Sem dados</span>':'<span class="pill pill-green">OK</span>';
+    const base=c.valor_base||0, compare=c.valor_comparativo||0, diff=c.variacao_valor||0, pct=c.variacao_percentual||0;
+    totBase+=base; totCompare+=compare; totDiff+=diff;
+    const over=diff<0, warn=Math.abs(pct)>=10&&Math.abs(pct)<20;
+    const pillHtml=over?'<span class="pill pill-red">Queda</span>':warn?'<span class="pill pill-yellow">Atencao</span>':pct===0?'<span class="pill pill-gray">Sem variacao</span>':'<span class="pill pill-green">Alta</span>';
     const barCol=over?'#D63031':warn?'#F39C12':'#009B8D';
     return `<tr>
       <td class="td-cat" style="border-left:3px solid ${CORES[i%CORES.length]}">&nbsp;${c.categoria}</td>
-      <td>${fmt(c.budget_anual)}</td>
-      <td>${fmt(c.realizado_acumulado)}</td>
-      <td style="color:var(--green-mid)">${fmt(c.provisao_acumulada)}</td>
-      <td style="font-weight:700">${fmt(comp)}</td>
-      <td class="${saldo>=0?'saldo-pos':'saldo-neg'}">${saldo<0?'Negativo ':''}${fmt(saldo)}</td>
-      <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(pct,100)}%;background:${barCol}"></div></div><div class="bar-pct" style="color:${barCol}">${pct}%</div></div></td>
+      <td>${fmt(base)}</td>
+      <td>${fmt(compare)}</td>
+      <td class="${diff>=0?'saldo-pos':'saldo-neg'}">${diff>=0?'+ ':''}${fmt(diff)}</td>
+      <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(Math.abs(pct),100)}%;background:${barCol}"></div></div><div class="bar-pct" style="color:${barCol}">${pct.toFixed(1)}%</div></div></td>
       <td>${pillHtml}</td>
     </tr>`;
   }).join('');
-  const totS=totB-totC, totPct=totB?Math.round(totC/totB*100):0;
+  const totPct=totBase?(totDiff/totBase)*100:0;
   tb.innerHTML+=`<tr class="total-row">
-    <td>TOTAL GERAL</td><td>${fmt(totB)}</td><td>${fmt(totR)}</td>
-    <td style="color:var(--green-mid)">${fmt(totP)}</td><td>${fmt(totC)}</td>
-    <td class="${totS>=0?'saldo-pos':'saldo-neg'}">${fmt(totS)}</td>
-    <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(totPct,100)}%;background:#009B8D"></div></div><div class="bar-pct" style="color:#009B8D">${totPct}%</div></div></td>
+    <td>TOTAL GERAL</td><td>${fmt(totBase)}</td><td>${fmt(totCompare)}</td>
+    <td class="${totDiff>=0?'saldo-pos':'saldo-neg'}">${totDiff>=0?'+ ':''}${fmt(totDiff)}</td>
+    <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(Math.abs(totPct),100)}%;background:#009B8D"></div></div><div class="bar-pct" style="color:#009B8D">${totPct.toFixed(1)}%</div></div></td>
     <td>--</td>
   </tr>`;
 }
 
 function updateMonthStrip(monthly) {
+  const baseScenario = getScenarioBase();
+  const compareScenario = getScenarioCompare();
   const byMonth = {};
   monthly.forEach(r => {
-    if(!byMonth[r.mes]) byMonth[r.mes]={budget:0,comp:0};
-    byMonth[r.mes].budget += r.budget||0;
-    byMonth[r.mes].comp   += (r.realizado||0)+(r.provisao||0);
+    if(!byMonth[r.mes]) byMonth[r.mes]={base:0,compare:0};
+    if (r.cenario === baseScenario) byMonth[r.mes].base += r.valor_total||0;
+    if (r.cenario === compareScenario) byMonth[r.mes].compare += r.valor_total||0;
   });
   const strip = document.getElementById('monthStrip');
   strip.innerHTML = MESES.map((m,i)=>{
     const mes=i+1, d=byMonth[mes];
-    if(!d||d.budget===0) return `<div class="month-chip future" onclick="selectMonth(${mes})">${m}</div>`;
-    const pct=d.budget?Math.round(d.comp/d.budget*100):0;
-    const cls=pct>=100?'over':pct>=80?'warn':'';
-    const icon=pct>=100?'ALTO':pct>=80?'ATN':'OK';
+    if(!d||(!d.base && !d.compare)) return `<div class="month-chip future" onclick="selectMonth(${mes})">${m}</div>`;
+    const pct=d.base?Math.round(((d.compare-d.base)/d.base)*100):0;
+    const cls=pct<0?'over':Math.abs(pct)>=10?'warn':'';
+    const icon=pct<0?'DOWN':Math.abs(pct)>=10?'ATN':'OK';
     return `<div class="month-chip ${cls}" onclick="selectMonth(${mes})">${m} ${icon}</div>`;
   }).join('');
 }
 
 function updateTopbar(ano, mes) {
-  const label = HIDE_ALL_DATA ? 'Sem dados' : (mes===0?`Acumulado ${ano}`:`${MESES[mes-1]}/${ano}`);
-  document.getElementById('topbarSub').textContent = `Logistica | ${label}`;
+  const baseScenario = getScenarioBase();
+  const compareScenario = getScenarioCompare();
+  const label = mes===0?`Acumulado ${ano}`:`${MESES[mes-1]}/${ano}`;
+  if (HIDE_ALL_DATA && baseScenario && compareScenario) {
+    document.getElementById('topbarSub').textContent = `${baseScenario} vs ${compareScenario} | ${label}`;
+  } else {
+    document.getElementById('topbarSub').textContent = `Logistica | ${label}`;
+  }
   document.getElementById('lastSync').textContent = `Sync: ${today()}`;
 }
 
@@ -1107,6 +1267,7 @@ function selectMonth(mes) {
 }
 
 async function refreshData() {
+  if (HIDE_ALL_DATA) await loadScenarioFilters();
   await loadCategories();
   await loadData();
 }
@@ -1230,36 +1391,43 @@ function exportCSV() {
 // REPORT
 function openReport() {
   const ano=document.getElementById('filterAno').value;
-  document.getElementById('reportSubtitle').textContent=`Logistica | Acumulado ${ano} | Emitido em ${today()}`;
+  const baseScenario = getScenarioLabel(getScenarioBase());
+  const compareScenario = getScenarioLabel(getScenarioCompare());
+  document.getElementById('reportSubtitle').textContent=`${baseScenario} vs ${compareScenario} | Acumulado ${ano} | Emitido em ${today()}`;
   document.getElementById('reportFooterDate').textContent=`Gerado em ${today()}`;
-  let totB=0,totR=0,totP=0,totC=0;
-  const CORES=['#006B5B','#009B8D','#00C4B3','#F0A500','#5DB8AA','#C8E6E3'];
+  document.getElementById('rBudgetLabel').textContent = baseScenario;
+  document.getElementById('rRealLabel').textContent = compareScenario;
+  document.getElementById('rCompLabel').textContent = 'Variacao';
+  document.getElementById('rSaldoLabel').textContent = 'Categorias';
+  document.getElementById('rthBase').textContent = baseScenario;
+  document.getElementById('rthCompare').textContent = compareScenario;
+  let totBase=0,totCompare=0,totDiff=0;
   document.getElementById('reportTableBody').innerHTML = allData.map((c,i)=>{
-    const comp=c.comprometido||0,saldo=c.saldo_anual||0,pct=c.pct_utilizado||0;
-    totB+=c.budget_anual||0;totR+=c.realizado_acumulado||0;totP+=c.provisao_acumulada||0;totC+=comp;
-    const status=saldo<0?'<span class="pill pill-red">Estouro</span>':pct>=80?'<span class="pill pill-yellow">Atencao</span>':'<span class="pill pill-green">OK</span>';
+    const base=c.valor_base||0, compare=c.valor_comparativo||0, diff=c.variacao_valor||0, pct=c.variacao_percentual||0;
+    totBase+=base; totCompare+=compare; totDiff+=diff;
+    const status=diff<0?'<span class="pill pill-red">Queda</span>':Math.abs(pct)>=10?'<span class="pill pill-yellow">Atencao</span>':'<span class="pill pill-green">Alta</span>';
     return `<tr>
       <td><strong>${c.categoria}</strong></td>
-      <td>${fmt(c.budget_anual)}</td><td>${fmt(c.realizado_acumulado)}</td>
-      <td>${fmt(c.provisao_acumulada)}</td><td><strong>${fmt(comp)}</strong></td>
-      <td style="color:${saldo>=0?'#006B5B':'#D63031'};font-weight:700">${saldo<0?'Negativo ':''}${fmt(saldo)}</td>
-      <td style="font-weight:700;color:${pct>=100?'#D63031':pct>=80?'#F39C12':'#006B5B'}">${pct}%</td>
+      <td>${fmt(base)}</td>
+      <td>${fmt(compare)}</td>
+      <td style="color:${diff>=0?'#006B5B':'#D63031'};font-weight:700">${diff>=0?'+ ':''}${fmt(diff)}</td>
+      <td style="font-weight:700;color:${diff<0?'#D63031':Math.abs(pct)>=10?'#F39C12':'#006B5B'}">${pct.toFixed(1)}%</td>
       <td>${status}</td>
     </tr>`;
   }).join('');
-  const totS=totB-totC;
-  document.getElementById('reportTotals').innerHTML=`<td><strong>TOTAL</strong></td><td><strong>${fmt(totB)}</strong></td><td><strong>${fmt(totR)}</strong></td><td><strong>${fmt(totP)}</strong></td><td><strong>${fmt(totC)}</strong></td><td style="color:${totS>=0?'#006B5B':'#D63031'}"><strong>${fmt(totS)}</strong></td><td><strong>${totB?Math.round(totC/totB*100):0}%</strong></td><td>--</td>`;
-  document.getElementById('rBudget').textContent=fmtShort(totB);
-  document.getElementById('rReal').textContent=fmtShort(totR);
-  document.getElementById('rComp').textContent=fmtShort(totC);
-  document.getElementById('rSaldo').textContent=fmtShort(totS);
-  document.getElementById('rSaldo').style.color=totS>=0?'var(--green-deep)':'var(--red)';
-  const alertas=allData.filter(c=>(c.pct_utilizado||0)>=80);
+  const totPct=totBase?(totDiff/totBase)*100:0;
+  document.getElementById('reportTotals').innerHTML=`<td><strong>TOTAL</strong></td><td><strong>${fmt(totBase)}</strong></td><td><strong>${fmt(totCompare)}</strong></td><td style="color:${totDiff>=0?'#006B5B':'#D63031'}"><strong>${totDiff>=0?'+ ':''}${fmt(totDiff)}</strong></td><td><strong>${totPct.toFixed(1)}%</strong></td><td>--</td>`;
+  document.getElementById('rBudget').textContent=fmtShort(totBase);
+  document.getElementById('rReal').textContent=fmtShort(totCompare);
+  document.getElementById('rComp').textContent=`${totDiff>=0?'+ ':''}${fmtShort(totDiff)}`;
+  document.getElementById('rSaldo').textContent=String(allData.length);
+  document.getElementById('rSaldo').style.color='var(--green-deep)';
+  const alertas=allData.filter(c=>Math.abs(c.variacao_percentual||0)>=10);
   document.getElementById('reportAlertBody').innerHTML=alertas.length?alertas.map(c=>`<tr>
     <td><strong>${c.categoria}</strong></td>
-    <td>${(c.saldo_anual||0)<0?'<span class="pill pill-red">Estouro</span>':'<span class="pill pill-yellow">Atencao</span>'}</td>
-    <td style="font-weight:700;color:${(c.pct_utilizado||0)>=100?'#D63031':'#F39C12'}">${c.pct_utilizado}%</td>
-    <td style="font-weight:700;color:${(c.saldo_anual||0)>=0?'#006B5B':'#D63031'}">${(c.saldo_anual||0)<0?'Negativo ':''}${fmt(c.saldo_anual)}</td>
+    <td>${(c.variacao_valor||0)<0?'<span class="pill pill-red">Queda</span>':'<span class="pill pill-yellow">Atencao</span>'}</td>
+    <td style="font-weight:700;color:${(c.variacao_valor||0)<0?'#D63031':'#F39C12'}">${(c.variacao_percentual||0).toFixed(1)}%</td>
+    <td style="font-weight:700;color:${(c.variacao_valor||0)>=0?'#006B5B':'#D63031'}">${(c.variacao_valor||0)>=0?'+ ':''}${fmt(c.variacao_valor)}</td>
   </tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:#888;padding:16px">Nenhuma categoria em alerta</td></tr>';
   document.getElementById('reportView').style.display='block';
   document.body.style.overflow='hidden';
