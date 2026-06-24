@@ -309,7 +309,7 @@ tbody td{padding:12px 16px;}
   <div class="topbar-right">
     <button class="btn btn-ghost" onclick="refreshData()">Atualizar</button>
     <button class="btn btn-ghost" onclick="toggleImport()">Importar SAP</button>
-    <button class="btn btn-gold" onclick="openReport()">Relatorio Executivo</button>
+    <button class="btn btn-gold" onclick="openReport()">Relatório Executivo</button>
     <div class="avatar">Adriana Utrou</div>
   </div>
 </header>
@@ -330,7 +330,7 @@ tbody td{padding:12px 16px;}
     </div>
     <div class="filter-sep"></div>
     <div class="filter-group">
-      <span class="filter-label">Periodo</span>
+      <span class="filter-label">Período</span>
       <select class="filter-select" id="filterMes" onchange="refreshData()">
         <option value="0">Acumulado (ano todo)</option>
         <option value="1">Janeiro</option><option value="2">Fevereiro</option>
@@ -350,7 +350,7 @@ tbody td{padding:12px 16px;}
     </div>
     <div class="filter-sep"></div>
     <div class="filter-group">
-      <span class="filter-label">Cenario Base</span>
+      <span class="filter-label">Cenário Base</span>
       <select class="filter-select" id="filterScenario" onchange="refreshData()">
         <option value="">Selecione</option>
       </select>
@@ -367,27 +367,27 @@ tbody td{padding:12px 16px;}
   <div class="kpi-grid">
     <div class="kpi">
       <div class="kpi-icon">Total</div>
-      <div class="kpi-label" id="kpiBudgetLabel">Cenario Base</div>
+      <div class="kpi-label" id="kpiBudgetLabel">Cenário Base</div>
       <div class="kpi-value" id="kpiBudget">--</div>
       <div class="kpi-sub" id="kpiBudgetSub">Carregando...</div>
     </div>
     <div class="kpi teal">
       <div class="kpi-icon">Pago</div>
-      <div class="kpi-label" id="kpiRealizadoLabel">Cenario Comparativo</div>
+      <div class="kpi-label" id="kpiRealizadoLabel">Cenário Comparativo</div>
       <div class="kpi-value" id="kpiRealizado">--</div>
       <div class="kpi-sub" id="kpiRealizadoSub">Carregando...</div>
       <span class="kpi-tag tag-green" id="kpiRealizadoTag"></span>
     </div>
     <div class="kpi gold">
       <div class="kpi-icon">Prev.</div>
-      <div class="kpi-label" id="kpiCompLabel">Variacao Absoluta</div>
+      <div class="kpi-label" id="kpiCompLabel">Variação Absoluta</div>
       <div class="kpi-value" id="kpiComp">--</div>
       <div class="kpi-sub" id="kpiCompSub">Comparativo - Base</div>
       <span class="kpi-tag tag-gold" id="kpiCompTag"></span>
     </div>
     <div class="kpi red">
       <div class="kpi-icon">Aviso</div>
-      <div class="kpi-label" id="kpiAlertasLabel">Maior Variacao</div>
+      <div class="kpi-label" id="kpiAlertasLabel">Maior Variação</div>
       <div class="kpi-value" id="kpiAlertas">--</div>
       <div class="kpi-sub" id="kpiAlertasSub">Carregando...</div>
       <span class="kpi-tag tag-red" id="kpiAlertasTag"></span>
@@ -398,13 +398,13 @@ tbody td{padding:12px 16px;}
   <div class="grid-2">
     <div class="card">
       <div class="card-header">
-        <div class="card-title"><div class="accent"></div>Budget vs Realizado vs Comprometido - Mensal</div>
+        <div class="card-title"><div class="accent"></div>Comparativo Mensal entre Cenários</div>
       </div>
       <div class="card-body">
         <div class="chart-legend">
           <div class="legend-item"><div class="legend-dot" style="background:#006B5B"></div><span id="legendBase">Base</span></div>
           <div class="legend-item"><div class="legend-dot" style="background:#009B8D"></div><span id="legendCompare">Comparativo</span></div>
-          <div class="legend-item"><div class="legend-dot" style="background:#F0A500"></div><span id="legendDiff">Variacao</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#F0A500"></div><span id="legendDiff">Variação</span></div>
         </div>
         <div class="chart-box">
           <canvas id="chartMensal"></canvas>
@@ -413,7 +413,7 @@ tbody td{padding:12px 16px;}
     </div>
     <div class="card">
       <div class="card-header">
-        <div class="card-title"><div class="accent" style="background:var(--gold)"></div>Distribuicao por Categoria</div>
+        <div class="card-title"><div class="accent" style="background:var(--gold)"></div>Distribuição por Categoria</div>
       </div>
       <div class="card-body">
         <div class="chart-box-pie">
@@ -431,7 +431,7 @@ tbody td{padding:12px 16px;}
   <!-- MONTH STRIP -->
   <div class="card" id="budgetArea" style="margin-bottom:24px">
     <div class="card-header" style="margin-bottom:14px">
-      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>Navegacao Mensal</div>
+      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>Navegação Mensal</div>
     </div>
     <div class="month-strip" id="monthStrip"></div>
   </div>
@@ -448,7 +448,7 @@ tbody td{padding:12px 16px;}
       <div class="table-wrap"><table>
         <thead><tr>
           <th>Categoria</th><th id="thBase">Base</th><th id="thCompare">Comparativo</th>
-          <th>Diferenca</th><th>% Variacao</th><th>Status</th>
+          <th>Diferença</th><th>% Variação</th><th>Status</th>
         </tr></thead>
         <tbody id="tabelaDetalhe"></tbody>
       </table></div>
@@ -458,7 +458,7 @@ tbody td{padding:12px 16px;}
   <!-- LANCAMENTOS TABLE -->
   <div class="card" id="lancamentosCard" style="display:none;margin-bottom:24px">
     <div class="card-header" style="margin-bottom:0">
-      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>Lancamentos do SAP</div>
+      <div class="card-title"><div class="accent" style="background:var(--green-light)"></div>Lançamentos do SAP</div>
       <div class="card-actions">
         <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="document.getElementById('lancamentosCard').style.display='none'">Fechar</button>
       </div>
@@ -466,7 +466,7 @@ tbody td{padding:12px 16px;}
     <div class="card-body" style="padding-top:16px">
       <div class="table-wrap"><table>
         <thead><tr>
-          <th>Pedido</th><th>Descricao</th><th>Fornecedor</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Categoria</th>
+          <th>Pedido</th><th>Descrição</th><th>Fornecedor</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Categoria</th>
         </tr></thead>
         <tbody id="tabelaLancamentos"></tbody>
       </table></div>
@@ -494,9 +494,9 @@ tbody td{padding:12px 16px;}
       <strong style="color:var(--green-deep)">Colunas esperadas no CSV:</strong> numero_pedido | descricao | fornecedor | data_lancamento (DD/MM/AAAA) | valor | tipo (realizado ou provisao) | categoria_id (opcional)
     </div>
     <div id="previewWrap" style="display:none;padding:0 22px 22px">
-      <div style="font-size:13px;font-weight:700;color:var(--green-deep);margin-bottom:12px">Pre-visualizacao - revise antes de importar:</div>
+      <div style="font-size:13px;font-weight:700;color:var(--green-deep);margin-bottom:12px">Pré-visualização - revise antes de importar:</div>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pedido</th><th>Descricao</th><th>Fornecedor</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Categoria</th></tr></thead>
+        <thead><tr><th>Pedido</th><th>Descrição</th><th>Fornecedor</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Categoria</th></tr></thead>
         <tbody id="previewBody"></tbody>
       </table></div>
       <div style="margin-top:16px;display:flex;gap:10px">
@@ -553,26 +553,26 @@ tbody td{padding:12px 16px;}
     <div class="report-header">
       <img class="report-logo-image" src="Camada_1__.png" alt="Medley">
       <div>
-        <div class="report-title">Relatorio Executivo de Budget</div>
-        <div class="report-subtitle" id="reportSubtitle">Logistica | Carregando...</div>
+        <div class="report-title">Relatório Executivo de Budget</div>
+        <div class="report-subtitle" id="reportSubtitle">Logística | Carregando...</div>
       </div>
     </div>
     <div class="report-meta">
-      <div class="report-meta-item"><div class="report-meta-label" id="rBudgetLabel">Cenario Base</div><div class="report-meta-value" id="rBudget">--</div></div>
+      <div class="report-meta-item"><div class="report-meta-label" id="rBudgetLabel">Cenário Base</div><div class="report-meta-value" id="rBudget">--</div></div>
       <div class="report-meta-item"><div class="report-meta-label" id="rRealLabel">Comparativo</div><div class="report-meta-value green" id="rReal">--</div></div>
-      <div class="report-meta-item"><div class="report-meta-label" id="rCompLabel">Variacao</div><div class="report-meta-value" style="color:var(--yellow)" id="rComp">--</div></div>
+      <div class="report-meta-item"><div class="report-meta-label" id="rCompLabel">Variação</div><div class="report-meta-value" style="color:var(--yellow)" id="rComp">--</div></div>
       <div class="report-meta-item"><div class="report-meta-label" id="rSaldoLabel">Categorias</div><div class="report-meta-value green" id="rSaldo">--</div></div>
     </div>
     <div class="report-body">
       <div class="report-section-title">Resumo por Categoria</div>
       <table class="report-table">
-        <thead><tr><th>Categoria</th><th id="rthBase">Base</th><th id="rthCompare">Comparativo</th><th>Diferenca</th><th>% Variacao</th><th>Status</th></tr></thead>
+        <thead><tr><th>Categoria</th><th id="rthBase">Base</th><th id="rthCompare">Comparativo</th><th>Diferença</th><th>% Variação</th><th>Status</th></tr></thead>
         <tbody id="reportTableBody"></tbody>
         <tfoot><tr id="reportTotals"></tr></tfoot>
       </table>
       <div class="report-section-title">Categorias em Alerta</div>
       <table class="report-table">
-        <thead><tr><th>Categoria</th><th>Status</th><th>% Variacao</th><th>Diferenca</th></tr></thead>
+        <thead><tr><th>Categoria</th><th>Status</th><th>% Variação</th><th>Diferença</th></tr></thead>
         <tbody id="reportAlertBody"></tbody>
       </table>
     </div>
@@ -1024,13 +1024,13 @@ async function deleteLancamentos(scope) {
 function updateKPIs(data, alertas) {
   const baseScenario = getScenarioLabel(getScenarioBase());
   const compareScenario = getScenarioLabel(getScenarioCompare());
-  document.getElementById('kpiBudgetLabel').textContent = `Cenario Base`;
-  document.getElementById('kpiRealizadoLabel').textContent = `Cenario Comparativo`;
-  document.getElementById('kpiCompLabel').textContent = 'Variacao Absoluta';
-  document.getElementById('kpiAlertasLabel').textContent = 'Maior Variacao';
+  document.getElementById('kpiBudgetLabel').textContent = `Cenário Base`;
+  document.getElementById('kpiRealizadoLabel').textContent = `Cenário Comparativo`;
+  document.getElementById('kpiCompLabel').textContent = 'Variação Absoluta';
+  document.getElementById('kpiAlertasLabel').textContent = 'Maior Variação';
   document.getElementById('legendBase').textContent = baseScenario;
   document.getElementById('legendCompare').textContent = compareScenario;
-  document.getElementById('legendDiff').textContent = 'Variacao';
+  document.getElementById('legendDiff').textContent = 'Variação';
   document.getElementById('thBase').textContent = baseScenario;
   document.getElementById('thCompare').textContent = compareScenario;
   if (HIDE_ALL_DATA || !data.length) {
@@ -1063,7 +1063,7 @@ function updateKPIs(data, alertas) {
   document.getElementById('kpiRealizadoTag').textContent = `${pctCompare}% da base`;
   document.getElementById('kpiComp').textContent = `${totDiff >= 0 ? '+' : '-'} ${fmtShort(totDiff)}`;
   document.getElementById('kpiCompSub').textContent = `${compareScenario} - ${baseScenario}`;
-  document.getElementById('kpiCompTag').textContent = `${totBase ? Math.round((totDiff / totBase) * 100) : 0}% de variacao`;
+  document.getElementById('kpiCompTag').textContent = `${totBase ? Math.round((totDiff / totBase) * 100) : 0}% de variação`;
   document.getElementById('kpiAlertas').textContent = topDiff ? topDiff.categoria : 'Sem dados';
   document.getElementById('kpiAlertasSub').textContent = topDiff ? `${topDiff.variacao_valor >= 0 ? '+' : '-'} ${fmt(topDiff.variacao_valor)}` : 'Nenhum destaque';
   document.getElementById('kpiAlertasTag').textContent = alertas.length ? `${alertas.length} categorias sensiveis` : 'Tudo OK';
@@ -1185,7 +1185,7 @@ function updateTable(data) {
     const base=c.valor_base||0, compare=c.valor_comparativo||0, diff=c.variacao_valor||0, pct=c.variacao_percentual||0;
     totBase+=base; totCompare+=compare; totDiff+=diff;
     const over=diff<0, warn=Math.abs(pct)>=10&&Math.abs(pct)<20;
-    const pillHtml=over?'<span class="pill pill-red">Queda</span>':warn?'<span class="pill pill-yellow">Atencao</span>':pct===0?'<span class="pill pill-gray">Sem variacao</span>':'<span class="pill pill-green">Alta</span>';
+    const pillHtml=over?'<span class="pill pill-red">Queda</span>':warn?'<span class="pill pill-yellow">Atenção</span>':pct===0?'<span class="pill pill-gray">Sem variação</span>':'<span class="pill pill-green">Alta</span>';
     const barCol=over?'#D63031':warn?'#F39C12':'#009B8D';
     return `<tr>
       <td class="td-cat" style="border-left:3px solid ${CORES[i%CORES.length]}">&nbsp;${c.categoria}</td>
@@ -1397,7 +1397,7 @@ function openReport() {
   document.getElementById('reportFooterDate').textContent=`Gerado em ${today()}`;
   document.getElementById('rBudgetLabel').textContent = baseScenario;
   document.getElementById('rRealLabel').textContent = compareScenario;
-  document.getElementById('rCompLabel').textContent = 'Variacao';
+  document.getElementById('rCompLabel').textContent = 'Variação';
   document.getElementById('rSaldoLabel').textContent = 'Categorias';
   document.getElementById('rthBase').textContent = baseScenario;
   document.getElementById('rthCompare').textContent = compareScenario;
@@ -1405,7 +1405,7 @@ function openReport() {
   document.getElementById('reportTableBody').innerHTML = allData.map((c,i)=>{
     const base=c.valor_base||0, compare=c.valor_comparativo||0, diff=c.variacao_valor||0, pct=c.variacao_percentual||0;
     totBase+=base; totCompare+=compare; totDiff+=diff;
-    const status=diff<0?'<span class="pill pill-red">Queda</span>':Math.abs(pct)>=10?'<span class="pill pill-yellow">Atencao</span>':'<span class="pill pill-green">Alta</span>';
+    const status=diff<0?'<span class="pill pill-red">Queda</span>':Math.abs(pct)>=10?'<span class="pill pill-yellow">Atenção</span>':'<span class="pill pill-green">Alta</span>';
     return `<tr>
       <td><strong>${c.categoria}</strong></td>
       <td>${fmt(base)}</td>
@@ -1425,7 +1425,7 @@ function openReport() {
   const alertas=allData.filter(c=>Math.abs(c.variacao_percentual||0)>=10);
   document.getElementById('reportAlertBody').innerHTML=alertas.length?alertas.map(c=>`<tr>
     <td><strong>${c.categoria}</strong></td>
-    <td>${(c.variacao_valor||0)<0?'<span class="pill pill-red">Queda</span>':'<span class="pill pill-yellow">Atencao</span>'}</td>
+    <td>${(c.variacao_valor||0)<0?'<span class="pill pill-red">Queda</span>':'<span class="pill pill-yellow">Atenção</span>'}</td>
     <td style="font-weight:700;color:${(c.variacao_valor||0)<0?'#D63031':'#F39C12'}">${(c.variacao_percentual||0).toFixed(1)}%</td>
     <td style="font-weight:700;color:${(c.variacao_valor||0)>=0?'#006B5B':'#D63031'}">${(c.variacao_valor||0)>=0?'+ ':''}${fmt(c.variacao_valor)}</td>
   </tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:#888;padding:16px">Nenhuma categoria em alerta</td></tr>';
